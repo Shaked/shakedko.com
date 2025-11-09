@@ -1,0 +1,251 @@
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <h2>Auto generated gradient strokes</h2>
+    <p>
+        Move the box using your mouse
+    </p>
+    <div id="imageContainer"></div>
+
+    <p>1st draft</p>
+    <script src="https://cdn.rawgit.com/konvajs/konva/1.7.3/konva.min.js"></script>
+    <script type="text/javascript">
+    function invertColor(hex, bw) {
+        if (hex.indexOf('#') === 0) {
+            hex = hex.slice(1);
+        }
+        console.log("hex", hex);
+        // convert 3-digit hex to 6-digits.
+        if (hex.length === 3) {
+            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        }
+        if (hex.length !== 6) {
+            throw new Error('Invalid HEX color.');
+        }
+        var r = parseInt(hex.slice(0, 2), 16),
+            g = parseInt(hex.slice(2, 4), 16),
+            b = parseInt(hex.slice(4, 6), 16);
+        if (bw) {
+            // http://stackoverflow.com/a/3943023/112731
+            return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ?
+                '#000000' :
+                '#FFFFFF';
+        }
+        // invert color components
+        r = (255 - r).toString(16);
+        g = (255 - g).toString(16);
+        b = (255 - b).toString(16);
+        // pad each with zeros and return
+        return "#" + padZero(r) + padZero(g) + padZero(b);
+    }
+
+    function rgbToHex(r, g, b) {
+        if (r > 255 || g > 255 || b > 255) {
+            throw "Invalid color component";
+        }
+        return ((r << 16) | (g << 8) | b).toString(16);
+    }
+
+    function padZero(str, len) {
+        len = len || 2;
+        var zeros = new Array(len).join('0');
+        return (zeros + str).slice(-len);
+    }
+
+    var getColor = function(ctx, x, y) {
+        var p = ctx.getImageData(x, y, 1, 1).data;
+        var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+        console.log('getColor x y', hex, x, y);
+
+        return hex;
+    };
+
+    var createGradient = function(ctx, rect) {
+        var gradient = ctx.createLinearGradient(
+            0,
+            0,
+            rect.width(),
+            rect.height()
+        );
+
+        var colors = [];
+        for (var i = rect.x(); i < (rect.width() + rect.x()); i += 4) {
+            colors.push(getColor(ctx, i, rect.y()));
+        }
+
+        for (var i = rect.y(); i < (rect.height() + rect.y()); i += 4) {
+            colors.push(getColor(ctx, rect.x(), i));
+        }
+
+        console.log('colors', colors);
+
+        gradient.addColorStop(0.00, invertColor(colors.shift()));
+        for (var i = 2; i < colors.length - 1; i++) {
+            gradient.addColorStop((i / colors.length), invertColor(colors.shift()));
+        }
+        gradient.addColorStop(1.00, invertColor(colors.shift()));
+        return gradient;
+    };
+
+
+    var changeGroupStroke = function(group, strokeColor) {
+        var rects = group.getChildren(function(node) {
+            return node.className == 'Rect';
+        });
+
+        for (var i = rects.length - 1; i >= 0; i--) {
+            console.log(rects[i]);
+
+            var rect = new Konva.Rect({
+                x: group.x(),
+                y: group.y(),
+                width: rects[i].width(),
+                height: rects[i].height()
+            });
+            var s = createGradient(staticLayer.getContext()._context, rect);
+            rects[i].stroke(s);
+        }
+    };
+
+
+
+    var createGroup = function(id, options) {
+     var group = new Konva.Group({
+            id: id,
+            draggable: options.draggable
+        });
+        var xmin = options.xmin;
+        var ymin = options.ymin;
+        var xmax = options.xmax;
+        var ymax = options.ymax;
+        var width = xmax - xmin;
+        var height = ymax - ymin;
+
+        var rect = {
+            x: xmin,
+            y: ymin,
+            strokeWidth: 2,
+            width: width,
+            height: height
+        };
+        var box = new Konva.Rect(rect);
+
+        var s = createGradient(staticLayer.getContext()._context, box);
+        box.stroke(s);
+
+        var textx = xmin - 6;
+        var texty = ymin - 19;
+
+        var text = new Konva.Text({
+            x: textx,
+            y: texty,
+            text: options.text,
+            fontSize: 14,
+            fontFamily: 'Calibri',
+            fill: "blue",
+            // width: width,
+            padding: 5,
+            align: 'left',
+            className: 'Text'
+        });
+
+        var textRect = new Konva.Rect({
+            x: textx,
+            y: texty,
+            strokeWidth: 2,
+            fill: "blue",
+            opacity: 0.4,
+            width: text.getWidth(),
+            height: text.getHeight()
+        });
+
+        var s = createGradient(staticLayer.getContext()._context, textRect);
+        textRect.stroke(s);
+        var isdrag = false;
+        group.on("dragstart", function(e) {
+            var f = stage.getPointerPosition();
+            e.cancelBubble = true;
+            isdrag = true;
+            console.log('dragstart', group);
+            this.moveToTop();
+            layer.draw();
+        });
+        group.on("dragmove", function(e) {
+            if (!isdrag) {
+                return;
+            }
+            document.body.style.cursor = "pointer";
+        });
+        group.on("dragend", function(e) {
+            if (!isdrag) {
+                return;
+            }
+
+            isdrag = false;
+            changeGroupStroke(group);
+            layer.draw();
+        });
+        group.add(textRect).add(text).add(box);
+        return group;
+    }
+        var setBackground = function(imageObj, width, height) {
+        background = new Konva.Image({
+            x: 0,
+            y: 0,
+            image: imageObj,
+            width: width,
+            height: height
+        });
+        staticLayer.add(background);
+        stage.add(staticLayer);
+        staticLayer.draw();
+        staticLayer.moveToBottom();
+    };
+    var settings = {
+        width: 400,
+        height: 267,
+    };
+    var imageObj = new Image();
+    var stage = new Konva.Stage({
+            container: 'imageContainer',
+            width: settings.width,
+            height: settings.height
+        });
+        var layer = new Konva.Layer();
+        var staticLayer = new Konva.Layer();
+        imageObj.onload = function() {
+            setBackground(imageObj, settings.width, settings.height)
+            stage.draw();
+
+            var group = createGroup("group1-id", {
+                draggable: true,
+                xmin: 100,
+                ymin: 100,
+                xmax: 250,
+                ymax: 174,
+                text: "groupName"
+            });
+                layer.add(group);
+                stage.add(layer);
+                layer.draw();
+        };
+
+        imageObj.src = "cat.jpg";
+    </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-23773041-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-23773041-1');
+</script>
+
+</body>
+
+</html>

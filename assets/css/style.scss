@@ -242,3 +242,15 @@ body {
     margin-right: 0;
   }
 }
+
+/* Twitter embed styles */
+.twitter-tweet {
+  margin: 20px auto !important;
+}
+
+/* Instagram embed styles */
+.instagram-media {
+  margin: 20px auto !important;
+  max-width: 540px;
+  width: calc(100% - 2px);
+}

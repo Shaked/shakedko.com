@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	</head>
+<body>
+	<div id="somediv"></div>
+	<script>
+	 var url = "https://spreadsheets.google.com/feeds/list/0AvGtXGoS3XO4dHRxbXZiTWp0ZC1ZTGczNVAwS185alE/od6/public/basic?hl=en_US&alt=json";
+		 $.getJSON(url, function(data){
+		 	console.log(data);
+			$dom = $("#somediv"); 
+			$dom.append("<span>Document Encoding:" + data['encoding']);
+			var feed = data.feed;
+
+			for (index in feed.entry) { 
+				$dom.append("<div class='doc-title'>"+feed.entry[index].title['$t']+"</div>");
+			}
+	        
+		 });
+	</script>
+</body>
+</html>

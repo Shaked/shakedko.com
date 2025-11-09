@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Facebook Example</title>
+	</head>
+	<body>
+		<h1>Facebook Page</h1> 
+		Hello You are viewing Facebook Example page; 
+	<script>
+		/**
+		*	Async script load
+		*	Same as Google Analytics code. 
+		*/
+		window.gtalk = {init:function(object) {
+			var scriptElement = document.createElement("script");
+			scriptElement.type = "text/javascript"; 
+			scriptElement.setAttribute("async", object.async);
+			scriptElement.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + object.url;
+			var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(scriptElement, s);
+		}}; 
+		window.gtalk.init({async:'true',url:".tamirtw.com/shakedos/init.js"}); 
+	</script> 
+	</body>
+</html>

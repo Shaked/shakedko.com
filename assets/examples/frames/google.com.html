@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<style>
+			body { margin: 0; padding: 0; } 
+		</style>
+		
+	</head>
+	<body>
+		<div style="background: green; width: 210px; height: 210px;">
+			<h2>GTALK  IFRAME Control</h2>
+			<input type="button" id="background" value="background" name="button" /><Br/>
+			<input type="button" id="font" value="font" name="button" /><Br/>
+		</div>
+		<script type="text/javascript" src="http://www.tamirtw.com/shakedos/message.js"></script>
+		<script>
+			//customerDomain will come from window.name when we create the iframe on our customer page we will add <iframe name=document.protocol + '//' + document.domain.. 
+			var customerDomain = window.name,
+				gtalkHTML = '<ul><li>Shaked Klein Orbach</li><li>User 2</li><li>User 3</li><li>User 4</li><li>User 5</li></ul>';
+				
+			//attach events because I`m so lazy
+			var setClickEvent = function(obj){
+				for (var i in obj){ 
+					document.getElementById(obj[i].id).onclick = obj[i].func; 
+				};
+			}; 
+			var _basePostMessageObject = {win:window.parent,origin:customerDomain}; 
+			//Merge object because I`m so lazy again
+			var mergeObjects = function(obj1,obj2){ 
+				var obj3 = {} 
+				for(var attr in obj1){
+					obj3[attr] = obj1[attr]; 
+				}; 
+				
+				for (var attr in obj2){
+					obj3[attr] = obj2[attr]; 
+				}
+				return obj3;
+			}; 
+			setClickEvent([
+				{id:'background',func: function(){ postMessageHandler(mergeObjects(_basePostMessageObject,{data:{key:'background', value:'green'}} ));  } }, 
+				{id:'font',func: function(){ postMessageHandler(mergeObjects(_basePostMessageObject,{data:{key:'font', value:'14px blue Verdana'}})); } }, 
+			]); 
+			
+			//Handle post message 
+			receiveMessageHandler({authorizedDomain:customerDomain, callback:function(data){
+				switch(data.key){
+					case 'init': 
+						postMessageHandler(mergeObjects(_basePostMessageObject,{data:{key:'gtalk', value:gtalkHTML}})); 
+					break; 
+					default:
+						alert('s');
+				};
+			}});
+		</script>
+	</body>
+</html>

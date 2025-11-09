@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  jekyll:
+    image: jekyll/jekyll:4.2.2
+    container_name: shakedko-blog
+    environment:
+      - JEKYLL_ENV=development
+    ports:
+      - "4000:4000"
+      - "35729:35729"  # LiveReload port
+    volumes:
+      - .:/srv/jekyll
+      - jekyll_bundle:/usr/local/bundle
+    command: jekyll serve --host 0.0.0.0 --livereload --force_polling
+
+volumes:
+  jekyll_bundle:
+
