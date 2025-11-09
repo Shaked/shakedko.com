@@ -5,6 +5,7 @@ date: 2013-11-23 10:00:00 -0500
 categories: Privacy
 tags: [Tinder, Security]
 author: Shaked Klein Orbach
+pinned: true
 redirect_from:
   - /tinder-privacy-issues
   - /tinder-privacy-issues.html
@@ -38,7 +39,7 @@ This method doesn't alway work, for the reason is because the way of finding the
 
 Install the proxy and set it to listen your iPhone data. You can use a [nice guide](http://blog.philippheckel.com/2013/07/05/how-to-sniff-the-whatsapp-password-from-your-android-phone-or-iphone/ "How to sniff the whatsapp password from your android phone or iphone") to actually install it for both iPhone and Android.
 
-Once installed,  just start it:
+Once installed, just start it:
 
     mitmproxy -p 8888
 
@@ -76,7 +77,7 @@ We are going to use the FB PHOTO ID to get this user's profile by just appending
 
     https://www.facebook.com/photo.php?fbid=FB PHOTO ID
 
-As I wrote above, this method doesn't always work if the user's Facebook privacy is restricted though *different IDs might have different privacy settings!*
+As I wrote above, this method doesn't always work if the user's Facebook privacy is restricted though _different IDs might have different privacy settings!_
 
 It should look like this:
 
@@ -108,7 +109,7 @@ Now that we found our "target" we can try to match it. This splits to two option
 1. Matching an existing Tinder user
 2. Finding who has a user on Tinder and who doesn't
 
-I think that it will be enough to explain the first in order to understand the second. Then how? Tinder API supports an option to choose two Facebook users and match between them. I am not sure that what I've found was made as part of the design but if you simply match yourself with another person you would be able **to bypass the tinder matching mechanism!*** So lets start:
+I think that it will be enough to explain the first in order to understand the second. Then how? Tinder API supports an option to choose two Facebook users and match between them. I am not sure that what I've found was made as part of the design but if you simply match yourself with another person you would be able **to bypass the tinder matching mechanism!\*** So lets start:
 
 When we match between two people we are be able to see that a PUT request is being made along with the auth headers mentioned above:
 

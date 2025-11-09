@@ -11,8 +11,12 @@ title: Home
   <h2>Recent Posts</h2>
 
   <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
+    {% assign pinned_posts = site.posts | where: "pinned", true %}
+    {% assign regular_posts = site.posts | where_exp: "post", "post.pinned != true" %}
+
+    {% for post in pinned_posts %}
+      <li class="post-item pinned-post">
+        <div class="post-badge">📌 Pinned</div>
         <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
         <h3>
           <a class="post-link" href="{{ post.url | relative_url }}">
@@ -20,7 +24,21 @@ title: Home
           </a>
         </h3>
         {% if post.excerpt %}
-          <p>{{ post.excerpt }}</p>
+          <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+        {% endif %}
+      </li>
+    {% endfor %}
+
+    {% for post in regular_posts %}
+      <li class="post-item">
+        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+        <h3>
+          <a class="post-link" href="{{ post.url | relative_url }}">
+            {{ post.title | escape }}
+          </a>
+        </h3>
+        {% if post.excerpt %}
+          <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
         {% endif %}
       </li>
     {% endfor %}
