@@ -5,6 +5,8 @@ date: 2011-06-19 00:57:00 -0500
 categories: Facebook
 tags: [FB, fight spam, Javascript, privacy, Select all users]
 author: Shaked Klein Orbach
+summary: |
+  I wrote a nice script to select all of your Facebook friends in one time. As my previous post, my wish is that Facebook will protect us as users and fight SPAM and keep our privacy settings.
 redirect_from:
   - /facebook-select-all-of-your-friend-in-1-time
   - /facebook-select-all-of-your-friend-in-1-time.html

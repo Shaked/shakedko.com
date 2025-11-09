@@ -6,6 +6,8 @@ categories: Privacy
 tags: [Facebook, SSO, Security, API]
 author: Shaked Klein Orbach
 image: /assets/images/facebook-api/privacy.jpg
+summary: |
+  I have been noticing that many applications tend to skip some important points while writing their APIs. In this post I will try to discuss some of those points. Usually, when we write APIs, we use a common data structure in order to be able to communicate as easy as possible with different services.
 redirect_from:
   - /how-to-write-a-privacy-oriented-api-when-using-sso
   - /how-to-write-a-privacy-oriented-api-when-using-sso.html

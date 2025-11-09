@@ -6,6 +6,8 @@ categories: Discipline
 tags: [discipline, sports, productivity]
 author: Shaked Klein Orbach
 image: /assets/images/jockobg.jpg
+summary: |
+  Doing sports for the last 1.5 years has showed me how being disciplined literally ends up with great results. [@jockowillink](https://twitter.com/jockowillink) nails it best. This takes me 15 years back, when I first started to code.
 redirect_from:
   - /discipline
   - /discipline.html

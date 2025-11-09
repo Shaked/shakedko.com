@@ -1,16 +1,17 @@
 ---
 layout: default
-title: Home
+title: עמוד הבית
+lang: he
 ---
 
-<div class="home">
+<div class="home" dir="rtl">
   <ul class="post-list">
-    {% assign pinned_posts = site.posts_en | where: "pinned", true %}
-    {% assign regular_posts = site.posts_en | where_exp: "post", "post.pinned != true" | sort: "date" | reverse %}
+    {% assign pinned_posts = site.posts_he | where: "pinned", true %}
+    {% assign regular_posts = site.posts_he | where_exp: "post", "post.pinned != true" | sort: "date" | reverse %}
 
     {% for post in pinned_posts %}
       <li class="post-item pinned-post" onclick="window.location='{{ post.url | relative_url }}'">
-        <div class="post-badge">📌 Pinned</div>
+        <div class="post-badge">📌 נעוץ</div>
         <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
         <h3>
           <a class="post-link" href="{{ post.url | relative_url }}">
@@ -38,9 +39,14 @@ title: Home
     {% endfor %}
   </ul>
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
+  {% if site.posts_he.size == 0 %}
+    <p class="no-posts">אין עדיין פוסטים בעברית.</p>
+  {% endif %}
+
+  <p class="rss-subscribe">הרשמה <a href="{{ "/he/feed.xml" | relative_url }}">דרך RSS</a></p>
 
   <div class="language-switcher">
-    <a href="/he">🇮🇱 עברית</a>
+    <a href="/">🇺🇸 English</a>
   </div>
 </div>
+

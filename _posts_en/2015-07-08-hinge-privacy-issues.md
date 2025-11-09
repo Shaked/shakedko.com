@@ -6,6 +6,8 @@ categories: Privacy
 tags: [Hinge, Security]
 author: Shaked Klein Orbach
 image: /assets/images/hinge/hinge-logo.png
+summary: |
+  [Hinge](http://hinge.co/) is another dating app same as Tinder, Match, OkCupid, JSwipe and more. The nice thing about Hinge is that its trying to match between relevant people. After exposing privacy issues with the [Tinder app](/2013/11/23/tinder-privacy-issues/), I decided to check each and every application that asks for personal information.
 redirect_from:
   - /hinge-privacy-issues
   - /hinge-privacy-issues.html

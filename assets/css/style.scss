@@ -21,15 +21,22 @@ body {
   border-top: 3px solid #4a90e2;
   border-bottom: 1px solid #e8e8e8;
   min-height: 56px;
-  padding: 10px 0;
+  padding: 10px 0 20px 0;
   background-color: #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .site-title {
   font-size: 26px;
   font-weight: 700;
-  line-height: 56px;
+  line-height: 1.2;
   letter-spacing: -1px;
   margin-bottom: 0;
   text-decoration: none;
@@ -41,9 +48,27 @@ body {
   color: #111;
 }
 
+.site-quote {
+  display: block;
+  font-size: 13px;
+  font-style: italic;
+  color: #666;
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 1.4;
+  max-width: 600px;
+}
+
+.quote-author {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
 .site-nav {
-  float: right;
-  line-height: 56px;
+  line-height: 1.2;
 }
 
 .site-nav .page-link {
@@ -99,12 +124,22 @@ body {
   transition: all 0.3s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: relative;
+  cursor: pointer;
 }
 
 .post-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: #d0d0d0;
+}
+
+.post-item a {
+  pointer-events: none;
+}
+
+.post-item .post-link {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .post-item.pinned-post {
@@ -224,7 +259,7 @@ body {
 
 .site-footer {
   border-top: 1px solid #e8e8e8;
-  padding: 30px 0;
+  padding: 10px 0;
   margin-top: 50px;
   background-color: #fafafa;
 }
@@ -235,17 +270,27 @@ body {
 }
 
 .social-links {
-  margin-top: 15px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .social-links a {
   color: #828282;
   text-decoration: none;
-  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
 }
 
 .social-links a:hover {
-  color: #111;
+  color: #4a90e2;
+}
+
+.social-icon {
+  vertical-align: middle;
 }
 
 /* Navigation trigger for mobile */
@@ -333,4 +378,40 @@ body {
 
 .rss-subscribe a:hover {
   text-decoration: underline;
+}
+
+/* Language switcher */
+.language-switcher {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e8e8e8;
+  text-align: center;
+}
+
+.language-switcher a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.language-switcher a:hover {
+  text-decoration: underline;
+}
+
+/* RTL support for Hebrew */
+[dir="rtl"] .post-item {
+  text-align: right;
+}
+
+[dir="rtl"] .post-badge {
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+.no-posts {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px 20px;
 }

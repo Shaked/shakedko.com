@@ -5,6 +5,8 @@ date: 2014-02-12 00:00:00 -0500
 categories: Go
 tags: [Golang, gomobiledetect, packages]
 author: Shaked Klein Orbach
+summary: |
+  Few months ago I have started to look into [Go](http://golang.org/) and decided to give it a try. As part of my learning curve I have decided to contribute and help others with things there are missing or not completely finished.
 redirect_from:
   - /introducing-go-mobile-detect-package
   - /introducing-go-mobile-detect-package.html

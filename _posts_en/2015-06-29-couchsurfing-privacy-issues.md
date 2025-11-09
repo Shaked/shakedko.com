@@ -5,6 +5,8 @@ date: 2015-06-29 10:19:00 -0500
 categories: Privacy
 tags: [Couchsurfing, Security]
 author: Shaked Klein Orbach
+summary: |
+  [Couchsurfing](https://www.couchsurfing.com/) is one of the best products I have used in the last couple of years. It helped me to meet many people from all over the world. Privacy is an important thing, and Couchsurfing allows people to see their users' private information such as Facebook profile URLs and Emergency Contact Details.
 redirect_from:
   - /couchsurfing-privacy-issues
   - /couchsurfing-privacy-issues.html

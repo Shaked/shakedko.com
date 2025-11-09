@@ -3,6 +3,10 @@ title: Shaked Klein Orbach
 description: Random posts maybe old maybe new
 baseurl: ""
 url: "https://shakedko.com"
+x_profile: "https://x.com/shakedko"
+x_handle: "@shakedko"
+github_profile: "https://github.com/shaked"
+github_handle: "@Shaked"
 
 # Build settings
 markdown: kramdown
@@ -18,15 +22,25 @@ paginate_path: "/page:num/"
 
 # Collections
 collections:
-  posts:
+  posts_en:
     output: true
     permalink: /:year/:month/:day/:title/
+  posts_he:
+    output: true
+    permalink: /:title/
 
 # Default front matter
 defaults:
   - scope:
       path: ""
-      type: "posts"
+      type: "posts_en"
     values:
       layout: "post"
       author: "Shaked Klein Orbach"
+  - scope:
+      path: ""
+      type: "posts_he"
+    values:
+      layout: "post"
+      author: "Shaked Klein Orbach"
+      lang: "he"

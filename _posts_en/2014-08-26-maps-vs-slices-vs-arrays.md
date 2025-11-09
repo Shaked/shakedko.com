@@ -5,6 +5,8 @@ date: 2014-08-26 00:00:00 -0500
 categories: Go
 tags: [Golang, gomobiledetect, packages]
 author: Shaked Klein Orbach
+summary: |
+  While working on the [Gomobiledetect package](https://github.com/Shaked/gomobiledetect) I have been facing some interesting performance issues such as caching the compiled regex rules. Today I want to talk about the performance improvement I have faced while working on gomobiledetect.
 redirect_from:
   - /maps-vs-slices-vs-arrays
   - /maps-vs-slices-vs-arrays.html

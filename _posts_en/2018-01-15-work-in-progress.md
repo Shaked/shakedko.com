@@ -6,6 +6,8 @@ categories: WIP
 tags: [productivity, wip, remote work]
 author: Shaked Klein Orbach
 image: /assets/images/wip.jpg
+summary: |
+  WIP helped me become more efficient. I joined WIP on Oct 14th 2017 and my productivity significantly increased. In 2016 I decided to go back to the office life and found a job as a Senior Backend Software Engineer at ResearchGate.
 redirect_from:
   - /work-in-progress
   - /work-in-progress.html

@@ -6,6 +6,8 @@ categories: Go
 tags: [Golang]
 author: Shaked Klein Orbach
 image: /assets/images/windows-error.jpg
+summary: |
+  In the last few weeks I have been working on a small bot/crawler project. Basically, I had to communicate with Wikimedia's API to get a large portion of information and images. One of my client's requirements was to ensure that the filename contains information about the downloaded image.
 redirect_from:
   - /golang-the-system-cannot-find-the-path-specified-on-windows
   - /golang-the-system-cannot-find-the-path-specified-on-windows.html

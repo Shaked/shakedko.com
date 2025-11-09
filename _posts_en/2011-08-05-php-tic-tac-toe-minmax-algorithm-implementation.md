@@ -5,6 +5,8 @@ date: 2011-08-05 17:04:00 -0500
 categories: PHP
 tags: [MinMax algo, MinMax Algorithm, PHP TicTacToe, TicTacToe implementation, TicTacToe MinMax]
 author: Shaked Klein Orbach
+summary: |
+  Today I want to share my [Tic-Tac-Toe](http://en.wikipedia.org/wiki/Tic-tac-toe) game. A week ago I got a nice assignment: create Tic-Tac-Toe game with PHP where the player won't be able to win the game using [MinMax algorithm](http://en.wikipedia.org/wiki/Minimax).
 redirect_from:
   - /php-tic-tac-toe-minmax-algorithm-implementation
   - /php-tic-tac-toe-minmax-algorithm-implementation.html

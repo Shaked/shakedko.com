@@ -5,6 +5,8 @@ date: 2011-06-06 21:35:00 -0500
 categories: Facebook
 tags: [Facebook Photos, Chrome Extensions, Javascript, Privacy]
 author: Shaked Klein Orbach
+summary: |
+  Today I will publish my first Google Chrome extension: FBPhotos. FBPhotos will give you the ability to share Facebook photos between friends while they will be able to see the photos and bypass the user's privacy preference.
 redirect_from:
   - /chrome-extension-facebook-photo-sharing-bypass-privacy-preference-fbphotos
   - /chrome-extension-facebook-photo-sharing-bypass-privacy-preference-fbphotos.html

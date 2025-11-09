@@ -6,6 +6,8 @@ categories: Privacy
 tags: [Tinder, Security]
 author: Shaked Klein Orbach
 pinned: true
+summary: |
+  Few months ago I heard about a dating application called [Tinder](http://gotinder.com). The idea of the app is pretty straight forward and actually cool. As the idea of the app is nice and it can actually work, privacy is still an important thing.
 redirect_from:
   - /tinder-privacy-issues
   - /tinder-privacy-issues.html

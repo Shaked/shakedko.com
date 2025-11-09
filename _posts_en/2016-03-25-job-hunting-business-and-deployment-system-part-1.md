@@ -6,6 +6,8 @@ categories: deployment system
 tags: [business, culture, job hunting]
 author: Shaked Klein Orbach
 image: /assets/images/challenges.jpg
+summary: |
+  After living in Mexico, traveling in the United States of America and freelancing for [CNature](http://www.cnature.co.il) remotely, I decided to look for a new challenge. I had a lot of different interviews and I want to focus on 2 things: Business and Deployment System.
 redirect_from:
   - /job-hunting-business-and-deployment-system-part-1
   - /job-hunting-business-and-deployment-system-part-1.html

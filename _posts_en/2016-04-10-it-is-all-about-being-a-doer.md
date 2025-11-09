@@ -6,6 +6,8 @@ categories: doer
 tags: ["#pymwymi"]
 author: Shaked Klein Orbach
 image: /assets/images/doer/doer.jpg
+summary: |
+  A year and a half ago I have decided to go on a long trip. I ended up in Berlin after [a very interesting job hunting](/2016/03/25/job-hunting-business-and-deployment-system-part-1/). During that time, I kept thinking what should I do next and I knew that the best thing for me is to become a doer.
 redirect_from:
   - /it-is-all-about-being-a-doer
   - /it-is-all-about-being-a-doer.html

@@ -5,6 +5,8 @@ date: 2011-07-14 23:44:00 -0500
 categories: Javascript
 tags: [cross domain, cross domain scripting, iframes, javascript iframes, web security]
 author: Shaked Klein Orbach
+summary: |
+  So I didn't write for a long time, and its about time to do that. Today I will share my thoughts about iframes and cross domain scripting. [Iframe](http://en.wikipedia.org/wiki/HTML_element#Frames) is an old HTML element which lets you load another page inside your current page.
 redirect_from:
   - /using-iframes-and-cross-domain-scripting
   - /using-iframes-and-cross-domain-scripting.html

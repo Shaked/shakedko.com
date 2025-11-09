@@ -5,6 +5,8 @@ date: 2012-12-16 00:51:00 -0500
 categories: Facebook
 tags: ["CurlException: 6", facebook curl, Graph API, Development]
 author: Shaked Klein Orbach
+summary: |
+  I am working on my Facebook app at <https://www.staytunedapp.com>. I had an issue with Facebook in the last few days while seeing an exception on my development server: CurlException: 6: name lookup timed out.
 redirect_from:
   - /facebook-api-curlexception-6-name-lookup-timed-out-thrown-in-facebook
   - /facebook-api-curlexception-6-name-lookup-timed-out-thrown-in-facebook.html

@@ -5,6 +5,8 @@ date: 2011-08-16 20:53:00 -0500
 categories: Javascript
 tags: [ICQ, icq on site, javascript toolbar, js toolbar, Site IM, web widget]
 author: Shaked Klein Orbach
+summary: |
+  So we finally finished ICQ On-Site beta project. As you may see, its already implemented and you may use it on this site. This version includes your ICQ friends and FB friends if your account is attached.
 redirect_from:
   - /icq-on-site-beta
   - /icq-on-site-beta.html
