@@ -7,6 +7,23 @@
   {%- seo -%}
   <link rel="stylesheet" href="{{ "/assets/css/style.css" | relative_url }}">
   {%- feed_meta -%}
+  <script>
+    // Redirect he.shakedko.com subdomain to /he/ path
+    (function() {
+      var hostname = window.location.hostname;
+      var pathname = window.location.pathname;
+      
+      // Check if we're on the Hebrew subdomain
+      if (hostname === 'he.shakedko.com' || hostname === 'he.shakedko.com.') {
+        // Only redirect if we're not already on a /he/ path
+        if (!pathname.startsWith('/he/') && pathname !== '/he') {
+          // Preserve the path and redirect to /he/ + current path
+          var newPath = pathname === '/' ? '/he/' : '/he' + pathname;
+          window.location.replace(newPath + window.location.search + window.location.hash);
+        }
+      }
+    })();
+  </script>
 </head>
 <body>
   {% include header.html %}

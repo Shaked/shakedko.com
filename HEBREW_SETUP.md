@@ -58,29 +58,35 @@ lang: he
 
 ## Setting up he.shakedko.com Subdomain
 
-### GitHub Pages Configuration
+### How It Works
 
-1. Add DNS records at your domain registrar:
-   ```
-   Type: CNAME
-   Name: he
-   Value: shakedko.com
-   ```
+The site now automatically redirects visitors from `he.shakedko.com` to the Hebrew section at `/he/` using JavaScript detection in the page layout. This means:
+- Visiting `https://he.shakedko.com` redirects to `https://he.shakedko.com/he/`
+- Visiting `https://he.shakedko.com/some-page/` redirects to `https://he.shakedko.com/he/some-page/`
+- The redirect preserves query parameters and URL fragments
 
-2. In GitHub repository settings:
-   - Go to Settings → Pages
-   - Under "Custom domain", the main domain should already be `shakedko.com`
-   - The subdomain will work automatically once DNS propagates
+### DNS Configuration Required
 
-### Alternative: Add to CNAME file
+To enable the Hebrew subdomain, add a DNS CNAME record at your domain registrar:
 
-If you want explicit subdomain support, create/update `CNAME` file:
 ```
-shakedko.com
-he.shakedko.com
+Type: CNAME
+Name: he
+Value: shakedko.com
 ```
 
-**Note**: GitHub Pages typically only allows one custom domain per repository. The subdomain routing works through the `/he/` path and DNS CNAME record pointing to the main domain.
+Or if your DNS provider requires a full domain:
+```
+Type: CNAME
+Name: he
+Value: shaked.github.io
+```
+
+**Important Notes:**
+- GitHub Pages doesn't require any special configuration in the repository settings
+- The main custom domain `shakedko.com` should already be configured
+- Once DNS propagates (usually 5-60 minutes), `he.shakedko.com` will automatically redirect to the Hebrew content
+- The redirect happens client-side via JavaScript in `_layouts/default.html`
 
 ## Features
 
