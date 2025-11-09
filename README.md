@@ -51,6 +51,28 @@ To run locally:
 3. Write your content in Markdown below the front matter
 4. Commit and push to publish
 
+## Redirecting Old URLs
+
+If you're migrating content from an old blog and want to preserve old URLs, you can use the `redirect_from` feature:
+
+1. Add a `redirect_from` field to your post's front matter with a list of old URLs:
+   ```yaml
+   ---
+   layout: post
+   title: "Your Post Title"
+   date: 2013-11-23 10:00:00 -0500
+   redirect_from:
+     - /2013/Nov/23/old-url.html
+     - /old-blog/2013/old-url.html
+   ---
+   ```
+
+2. The `jekyll-redirect-from` plugin will automatically create HTML files at those old URLs that redirect to your new post URL.
+
+3. Example: A post created as `_posts/2013-11-23-tinder-privacy-issues.md` will be available at `/2013/11/23/tinder-privacy-issues/`, but can also redirect from `/2013/Nov/23/tinder-privacy-issues.html` by adding it to `redirect_from`.
+
+See `_posts/2013-11-23-tinder-privacy-issues.md` for a working example.
+
 ## Example Blog Post
 
 An example blog post has been created at `_posts/2025-11-09-welcome-to-my-blog.md` demonstrating the structure and Markdown features. You can replace or delete this when you're ready.
