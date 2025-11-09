@@ -10,6 +10,7 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
+  - jekyll-redirect-from
 
 # Pagination
 paginate: 5
