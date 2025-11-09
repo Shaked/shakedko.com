@@ -1,0 +1,31 @@
+# Site settings
+title: Shaked Klein Orbach
+description: Random posts maybe old maybe new
+baseurl: ""
+url: "https://shakedko.com"
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Pagination
+paginate: 5
+paginate_path: "/page:num/"
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /:year/:month/:day/:title/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Shaked Klein Orbach"
