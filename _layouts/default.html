@@ -19,5 +19,21 @@
 
   {% include footer.html %}
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <script>
+    // Force load Twitter widgets when page loads
+    window.addEventListener('load', function() {
+      if (typeof twttr !== 'undefined' && twttr.widgets) {
+        twttr.widgets.load();
+      } else {
+        // If twttr is not ready yet, wait for it
+        var checkTwitter = setInterval(function() {
+          if (typeof twttr !== 'undefined' && twttr.widgets) {
+            twttr.widgets.load();
+            clearInterval(checkTwitter);
+          }
+        }, 100);
+      }
+    });
+  </script>
 </body>
 </html>
