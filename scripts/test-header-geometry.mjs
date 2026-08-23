@@ -66,10 +66,11 @@ const probe = `(() => {
     links: document.querySelectorAll('.trigger a').length,
     headerZ: getComputedStyle(document.querySelector('.site-header')).zIndex,
     navZ: getComputedStyle(document.querySelector('.site-nav')).zIndex,
-    navPosition: getComputedStyle(document.querySelector('.site-nav')).position,
+    rowHeights: [...document.querySelectorAll('.trigger > .page-link')].map((link) => link.getBoundingClientRect().height),
+    socialRowHeight: document.querySelector('.mobile-social-links').getBoundingClientRect().height,
     nav, title, quote, trigger,
-    titleOverlap: intersects(nav, title),
-    quoteOverlap: intersects(nav, quote),
+    titleOverlap: intersects(trigger, title),
+    quoteOverlap: intersects(trigger, quote),
   });
 })()`;
 
@@ -95,7 +96,11 @@ function assertGeometry(measurement, width, language, expanded) {
   if (measurement.nav.left < 0 || measurement.nav.right > width) fail(`${state}: navigation exceeds viewport`);
   if (measurement.titleOverlap || measurement.quoteOverlap) fail(`${state}: navigation intersects title or quote`);
   if (measurement.headerZ !== '1' || measurement.navZ !== '1') fail(`${state}: stacking contract changed`);
-  if (expanded && measurement.trigger.top < measurement.title.bottom) fail(`${state}: expanded links are not below the title row`);
+  if (expanded) {
+    if (measurement.trigger.top < measurement.title.bottom) fail(`${state}: expanded links are not below the title row`);
+    if (measurement.nav.width > 242 || measurement.nav.height > 235) fail(`${state}: panel is not compact`);
+    if (measurement.socialRowHeight !== 44 || measurement.rowHeights.some((height) => height !== 44)) fail(`${state}: rows lost their shared touch rhythm`);
+  }
 }
 
 const browser = startBrowser();
@@ -107,13 +112,12 @@ try {
       }
     }
   }
-  const brokenCss = css.replace(/position\s*:\s*static\s*;/, 'position:absolute;');
+  const brokenCss = css.replace(/padding-block-end\s*:\s*240px\s*;/, 'padding-block-end:0;');
   if (brokenCss === css) fail('geometry mutation did not change the compiled CSS');
   let mutationRejected = false;
   for (const [page, language] of [['index.html', 'ltr'], ['he/index.html', 'rtl']]) {
     const mutated = await measure(browser, headerDocument(page, language, brokenCss), 393, true);
-    if (mutated.navPosition !== 'absolute') fail(`${language} mutation did not restore absolute positioning`);
-    if (!mutated.titleOverlap && !mutated.quoteOverlap) fail(`${language} mutation did not recreate the intended header overlap`);
+    if (!mutated.quoteOverlap) fail(`${language} mutation did not recreate the intended quote overlap`);
     try {
       assertGeometry(mutated, 393, language, true);
     } catch {

@@ -177,6 +177,10 @@ summary:focus-visible {
   fill: currentColor;
 }
 
+.mobile-social-links {
+  display: contents;
+}
+
 .site-nav .page-link:visited {
   color: var(--color-text);
 }
@@ -519,16 +523,11 @@ summary:focus-visible {
   }
 
   .site-nav:has(.nav-trigger:checked) {
-    position: static;
-    order: 2;
-    margin-inline-start: auto;
-    inline-size: min(280px, calc(100% - var(--space-6)));
-    max-inline-size: 100%;
+    inline-size: min(240px, calc(100% - var(--space-6)));
   }
 
   .header-top:has(.nav-trigger:checked) {
-    flex-wrap: wrap;
-    padding-inline-end: 0;
+    padding-block-end: 240px;
   }
 
   /* Override Minima's `.site-nav .nav-trigger { display: none; }` so the
@@ -585,9 +584,12 @@ summary:focus-visible {
   }
 
   .site-nav .page-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: 44px;
     padding: var(--space-2);
-    margin-inline: 20px 0;
+    margin-inline: 0;
   }
 
   .site-nav .page-link:not(:last-child) {
@@ -595,8 +597,16 @@ summary:focus-visible {
   }
 
   .site-nav .social-link {
+    justify-content: center;
+    inline-size: 44px;
+  }
+
+  .mobile-social-links {
     display: flex;
-    inline-size: max-content;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: 44px;
+    padding-inline: var(--space-2);
   }
 }
 

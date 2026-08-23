@@ -16,22 +16,26 @@
       <div class="trigger">
         {% if page.lang == "he" %}
           <a class="page-link" href="{{ "/he/" | relative_url }}">עמוד הבית</a>
+          <span class="mobile-social-links">
           <a class="page-link social-link" href="{{ site.x_profile }}" target="_blank" rel="noopener noreferrer" aria-label="X profile (opens in a new tab)">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2Zm-1.1 18h1.7L8.2 3.9H6.4L17.8 20Z"/></svg>
           </a>
           <a class="page-link social-link" href="{{ site.linkedin_profile }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile (opens in a new tab)">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M5.4 3.5A2.4 2.4 0 1 1 5.4 8a2.4 2.4 0 0 1 0-4.5ZM3.3 9.7h4.2V21H3.3V9.7ZM10.1 9.7h4v1.5h.1c.6-1.1 1.9-2.2 4-2.2 4.3 0 5.1 2.8 5.1 6.5V21H19v-4.8c0-1.2 0-3-1.8-3-1.9 0-2.2 1.4-2.2 2.9V21h-4.2V9.7Z"/></svg>
           </a>
+          </span>
           <a class="page-link" href="{{ "/" | relative_url }}">English</a>
           <a class="page-link" href="{{ "/he/archive/" | relative_url }}">ארכיון</a>
         {% else %}
           <a class="page-link" href="{{ "/" | relative_url }}">Home</a>
+          <span class="mobile-social-links">
           <a class="page-link social-link" href="{{ site.x_profile }}" target="_blank" rel="noopener noreferrer" aria-label="X profile (opens in a new tab)">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2Zm-1.1 18h1.7L8.2 3.9H6.4L17.8 20Z"/></svg>
           </a>
           <a class="page-link social-link" href="{{ site.linkedin_profile }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile (opens in a new tab)">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M5.4 3.5A2.4 2.4 0 1 1 5.4 8a2.4 2.4 0 0 1 0-4.5ZM3.3 9.7h4.2V21H3.3V9.7ZM10.1 9.7h4v1.5h.1c.6-1.1 1.9-2.2 4-2.2 4.3 0 5.1 2.8 5.1 6.5V21H19v-4.8c0-1.2 0-3-1.8-3-1.9 0-2.2 1.4-2.2 2.9V21h-4.2V9.7Z"/></svg>
           </a>
+          </span>
           <a class="page-link" href="{{ "/he/" | relative_url }}">עברית</a>
           <a class="page-link" href="{{ "/archive/" | relative_url }}">Archive</a>
         {% endif %}
