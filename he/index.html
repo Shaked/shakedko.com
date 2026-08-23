@@ -5,59 +5,11 @@ lang: he
 ---
 
 <div class="home" dir="rtl">
-  <ul class="post-list">
-    {% assign pinned_posts = site.posts_he | where: "pinned", true %}
-    {% assign regular_posts = site.posts_he | where_exp: "post", "post.pinned != true" | sort: "date" | reverse %}
-
-    {% for post in pinned_posts %}
-      <li class="post-item pinned-post" {% if post.xlink %}onclick="window.open('{{ post.xlink }}', '_blank')"{% else %}onclick="window.location='{{ post.url | relative_url }}'"{% endif %}>
-        <div class="post-badge">📌 נעוץ</div>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
-        {% unless post.xlink %}
-        <h3>
-          <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}
-          </a>
-        </h3>
-        {% endunless %}
-        {% if post.xlink %}
-          <div class="twitter-embed-container">
-            <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
-              <a href="{{ post.xlink }}"></a>
-            </blockquote>
-          </div>
-        {% elsif post.summary %}
-          <p class="post-excerpt">{{ post.summary | markdownify | strip_html }}</p>
-        {% endif %}
-      </li>
-    {% endfor %}
-
-    {% for post in regular_posts %}
-      <li class="post-item" {% if post.xlink %}onclick="window.open('{{ post.xlink }}', '_blank')"{% else %}onclick="window.location='{{ post.url | relative_url }}'"{% endif %}>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
-        {% unless post.xlink %}
-        <h3>
-          <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}
-          </a>
-        </h3>
-        {% endunless %}
-        {% if post.xlink %}
-          <div class="twitter-embed-container">
-            <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
-              <a href="{{ post.xlink }}"></a>
-            </blockquote>
-          </div>
-        {% elsif post.summary %}
-          <p class="post-excerpt">{{ post.summary | markdownify | strip_html }}</p>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-
-  {% if site.posts_he.size == 0 %}
-    <p class="no-posts">אין עדיין פוסטים בעברית.</p>
-  {% endif %}
+  {% assign visible_posts = site.posts_he | where_exp: "post", "post.archived != true" %}
+  {% assign pinned_posts = visible_posts | where: "pinned", true %}
+  {% assign regular_posts = visible_posts | where_exp: "post", "post.pinned != true" | sort: "date" | reverse %}
+  {% assign home_posts = pinned_posts | concat: regular_posts %}
+  {% include post-list.html posts=home_posts show_pinned_badge=true pinned_label="נעוץ" empty_message="אין עדיין פוסטים בעברית." x_fallback_label="לצפייה בפוסט המקורי ב-X" %}
 
   <p class="rss-subscribe">הרשמה <a href="{{ "/he/feed.xml" | relative_url }}">דרך RSS</a></p>
 
@@ -65,4 +17,3 @@ lang: he
     <a href="/">🇺🇸 English</a>
   </div>
 </div>
-

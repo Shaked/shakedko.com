@@ -16,6 +16,11 @@ plugins:
   - jekyll-seo-tag
   - jekyll-redirect-from
 
+feed:
+  collections:
+    posts_he:
+      path: "/he/feed.xml"
+
 # Pagination
 paginate: 5
 paginate_path: "/page:num/"

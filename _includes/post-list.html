@@ -1,0 +1,35 @@
+<ul class="post-list">
+  {% for post in include.posts %}
+    {% if post.xlink %}
+      <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %} x-post-card">
+    {% else %}
+      <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %}" onclick="window.location='{{ post.url | relative_url }}'">
+    {% endif %}
+      {% if include.show_pinned_badge and post.pinned %}
+        <div class="post-badge">📌 {{ include.pinned_label }}</div>
+      {% endif %}
+      <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+      {% unless post.xlink %}
+        <h3>
+          <a class="post-link" href="{{ post.url | relative_url }}">
+            {{ post.title | escape }}
+          </a>
+        </h3>
+      {% endunless %}
+      {% if post.xlink %}
+        <div class="twitter-embed-container">
+          <blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-width="550">
+            <a href="{{ post.xlink }}"></a>
+          </blockquote>
+          <a class="x-post-fallback" href="{{ post.xlink }}" target="_blank" rel="noopener noreferrer">{{ include.x_fallback_label | escape }}</a>
+        </div>
+      {% elsif post.summary %}
+        <p class="post-excerpt">{{ post.summary | markdownify | strip_html }}</p>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+
+{% if include.posts.size == 0 %}
+  <p class="no-posts">{{ include.empty_message }}</p>
+{% endif %}

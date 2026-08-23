@@ -1,0 +1,13 @@
+---
+layout: default
+title: Archive
+---
+
+<div class="home">
+  {% assign archived_posts = site.posts_en | where: "archived", true | sort: "date" | reverse %}
+  {% include post-list.html posts=archived_posts empty_message="There are no archived posts." %}
+
+  <div class="language-switcher">
+    <a href="/he/archive/">🇮🇱 עברית</a>
+  </div>
+</div>
