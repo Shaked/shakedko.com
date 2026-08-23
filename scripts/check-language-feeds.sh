@@ -41,6 +41,28 @@ def collection_entries(root, collection)
   end.compact.sort_by { |entry| entry[:published] }.reverse
 end
 
+def generated_documents(site_dir)
+  Dir.glob(File.join(site_dir, '**', '*.html')).map do |path|
+    html = File.read(path)
+    canonical = html[/<link rel="canonical" href="([^"]+)"\s*\/>/, 1]
+    title = html[/<meta property="og:title" content="([^"]+)"\s*\/>/, 1]
+    published = html[/<meta property="article:published_time" content="([^"]+)"\s*\/>/, 1]
+    next unless canonical && title && published
+
+    { title: normalize_title(title), published: Time.parse(published), canonical: canonical }
+  end.compact
+end
+
+def bind_generated_document(source, documents)
+  matches = documents.select do |document|
+    document[:title] == normalize_title(source[:title]) && document[:published] == source[:published]
+  end
+  fail "#{source[:title]}: source document does not resolve to exactly one generated document." unless matches.length == 1
+
+  canonical = matches.first[:canonical]
+  source.merge(id: canonical.sub(%r{/+\z}, ''), destination: source[:xlink] || canonical)
+end
+
 def atom_text(element, name, namespaces)
   child = REXML::XPath.first(element, "atom:#{name}", namespaces)
   child&.text&.gsub(/\s+/, ' ')&.strip
@@ -76,7 +98,8 @@ def validate_feed(root, site_dir, collection, feed_path, discovery_page, discove
 
   document = REXML::Document.new(File.read(feed_file))
   fail "#{feed_path}: Atom feed root is invalid." unless document.root&.name == 'feed' && document.root.namespace == namespaces['atom']
-  expected = collection_entries(root, collection)
+  documents = generated_documents(site_dir)
+  expected = collection_entries(root, collection).map { |source| bind_generated_document(source, documents) }
   entries = REXML::XPath.match(document, '/atom:feed/atom:entry', namespaces)
   fail "#{feed_path}: expected #{expected.length} entries, found #{entries.length}." unless entries.length == expected.length
 
@@ -92,14 +115,10 @@ def validate_feed(root, site_dir, collection, feed_path, discovery_page, discove
     fail "#{feed_path}: entry #{index + 1} title is incorrect." unless normalize_title(title) == normalize_title(source[:title])
     fail "#{feed_path}: entry #{index + 1} published date is invalid." unless Time.parse(published) == source[:published]
     fail "#{feed_path}: entry #{index + 1} updated date is invalid." unless Time.parse(updated)
-    fail "#{feed_path}: entry #{index + 1} needs a stable ID." if id.nil? || id.empty?
+    fail "#{feed_path}: entry #{index + 1} ID does not match its source document." unless id == source[:id]
     ids << id
 
-    if source[:xlink]
-      fail "#{feed_path}: X entry #{index + 1} must link to its original URL." unless link == source[:xlink]
-    else
-      fail "#{feed_path}: document entry #{index + 1} has a broken URL." unless link && generated_document?(site_dir, link)
-    end
+    fail "#{feed_path}: entry #{index + 1} destination does not match its source document." unless link == source[:destination]
   rescue ArgumentError
     fail "#{feed_path}: entry #{index + 1} has an invalid Atom timestamp."
   end
