@@ -57,9 +57,10 @@ fail 'mobile menu needs a bounded control size and shared shadow.' unless mobile
 expanded_nav = mobile[/\.site-nav:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
 fail 'expanded mobile trigger must remain compact.' unless expanded_nav&.match?(/inline-size:\s*36px;/)
 expanded_top = mobile[/\.header-top:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
-fail 'expanded mobile menu must reserve its compact panel height.' unless expanded_top&.match?(/padding-block-end:\s*240px;/)
+fail 'expanded mobile menu must not push document content down.' if expanded_top&.match?(/padding-block-end:\s*(?!0(?:px)?;?)/)
 fail 'mobile navigation rows must keep a compact touch rhythm.' unless mobile.match?(/\.site-nav \.page-link\s*\{[^}]*min-block-size:\s*44px;/m) && mobile.match?(/\.mobile-social-links\s*\{[^}]*min-block-size:\s*44px;/m)
 fail 'expanded panel must begin below the trigger row at the logical edge.' unless mobile.match?(/\.nav-trigger:checked ~ \.trigger\s*\{[^}]*position:\s*absolute;[^}]*inset-block-start:\s*100%;[^}]*inset-inline-end:\s*0;[^}]*inline-size:\s*240px;/m)
+fail 'mobile overlay must keep a strong stacking level.' unless mobile_nav&.match?(/z-index:\s*3;/)
 
 compiled_header = compiled.scan(/\.site-header\s*\{([^}]*)\}/m).flatten.last
 fail 'compiled header lost its stacking contract.' unless compiled_header&.match?(/isolation:\s*isolate/) && compiled_header.match?(/z-index:\s*1/)

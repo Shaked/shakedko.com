@@ -41,6 +41,8 @@ mv "$fixture/header.tmp" "$fixture/work/_includes/header.html"
 expect_failure 'navigation landmark must retain its accessible name'
 
 make_fixture
-sed 's/padding-block-end: 240px;/padding-block-end: 0;/' "$fixture/work/assets/css/style.scss" > "$fixture/style.tmp"
-mv "$fixture/style.tmp" "$fixture/work/assets/css/style.scss"
-expect_failure 'expanded mobile menu must reserve its compact panel height'
+ruby - "$fixture/work/assets/css/style.scss" <<'RUBY'
+path = ARGV.fetch(0)
+File.write(path, File.read(path) + "\n@media screen and (max-width: 600px) { .header-top:has(.nav-trigger:checked) { padding-block-end: 240px; } }\n")
+RUBY
+expect_failure 'expanded mobile menu must not push document content down'

@@ -509,7 +509,7 @@ summary:focus-visible {
 
   .site-nav {
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     top: 9px;
     inset-inline-end: 15px;
     inset-inline-start: auto;
@@ -524,10 +524,6 @@ summary:focus-visible {
 
   .site-nav:has(.nav-trigger:checked) {
     inline-size: 36px;
-  }
-
-  .header-top:has(.nav-trigger:checked) {
-    padding-block-end: 240px;
   }
 
   /* Override Minima's `.site-nav .nav-trigger { display: none; }` so the

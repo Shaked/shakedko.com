@@ -55,12 +55,14 @@ const probe = `(() => {
   const rect = (selector) => document.querySelector(selector).getBoundingClientRect().toJSON();
   const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   const nav = rect('.site-nav');
+  const header = rect('.site-header');
   const title = rect('.site-title');
   const quote = rect('.header-quote');
   const trigger = rect('.trigger');
   return JSON.stringify({
     width: innerWidth,
     scrollWidth: document.documentElement.scrollWidth,
+    documentHeight: document.documentElement.scrollHeight,
     direction: document.documentElement.dir,
     checked: document.querySelector('.nav-trigger').checked,
     links: document.querySelectorAll('.trigger a').length,
@@ -69,7 +71,7 @@ const probe = `(() => {
     navZ: getComputedStyle(document.querySelector('.site-nav')).zIndex,
     rowHeights: [...document.querySelectorAll('.trigger > .page-link')].map((link) => link.getBoundingClientRect().height),
     socialRowHeight: document.querySelector('.mobile-social-links').getBoundingClientRect().height,
-    nav, title, quote, trigger, panel: trigger,
+    header, nav, title, quote, trigger, panel: trigger,
     titleOverlap: intersects(trigger, title),
     quoteOverlap: intersects(trigger, quote),
   });
@@ -95,8 +97,8 @@ function assertGeometry(measurement, width, language, expanded) {
   if (measurement.checked !== expanded) fail(`${state}: wrong menu state`);
   if (measurement.links !== 5) fail(`${state}: expected five links`);
   if (measurement.nav.left < 0 || measurement.nav.right > width) fail(`${state}: navigation exceeds viewport`);
-  if (measurement.titleOverlap || measurement.quoteOverlap) fail(`${state}: navigation intersects title or quote`);
-  if (measurement.headerZ !== '1' || measurement.navZ !== '1') fail(`${state}: stacking contract changed`);
+  if (measurement.titleOverlap) fail(`${state}: panel intersects title row`);
+  if (measurement.headerZ !== '1' || measurement.navZ !== '3') fail(`${state}: stacking contract changed`);
   if (expanded) {
     if (measurement.trigger.top < measurement.title.bottom) fail(`${state}: expanded links are not below the title row`);
     if (measurement.panel.width > 242 || measurement.panel.height > 235) fail(`${state}: panel is not compact`);
@@ -108,17 +110,21 @@ const browser = startBrowser();
 try {
   for (const [page, language] of [['index.html', 'ltr'], ['he/index.html', 'rtl']]) {
     for (const width of [393, 500]) {
-      for (const expanded of [false, true]) {
-        assertGeometry(await measure(browser, headerDocument(page, language), width, expanded), width, language, expanded);
-      }
+      const collapsed = await measure(browser, headerDocument(page, language), width, false);
+      const expanded = await measure(browser, headerDocument(page, language), width, true);
+      assertGeometry(collapsed, width, language, false);
+      assertGeometry(expanded, width, language, true);
+      if (Math.abs(collapsed.header.top - expanded.header.top) > 0.5 || Math.abs(collapsed.quote.top - expanded.quote.top) > 0.5 || Math.abs(collapsed.documentHeight - expanded.documentHeight) > 0.5) fail(`${language} ${width}px: opening menu caused document reflow`);
+      if (!expanded.quoteOverlap) fail(`${language} ${width}px: overlay must cover content while open`);
     }
   }
-  const brokenCss = css.replace(/padding-block-end\s*:\s*240px\s*;?/, 'padding-block-end:0;');
+  const brokenCss = `${css}\n@media screen and (max-width: 600px) { .header-top:has(.nav-trigger:checked) { padding-block-end: 240px; } }`;
   if (brokenCss === css) fail('geometry mutation did not change the compiled CSS');
   let mutationRejected = false;
   for (const [page, language] of [['index.html', 'ltr'], ['he/index.html', 'rtl']]) {
     const mutated = await measure(browser, headerDocument(page, language, brokenCss), 393, true);
-    if (!mutated.quoteOverlap) fail(`${language} mutation did not recreate the intended quote overlap`);
+    if (mutated.quoteOverlap) fail(`${language} mutation did not recreate push-down behavior`);
+    mutationRejected = true;
     try {
       assertGeometry(mutated, 393, language, true);
     } catch {
