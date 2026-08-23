@@ -66,6 +66,7 @@ const probe = `(() => {
     links: document.querySelectorAll('.trigger a').length,
     headerZ: getComputedStyle(document.querySelector('.site-header')).zIndex,
     navZ: getComputedStyle(document.querySelector('.site-nav')).zIndex,
+    navPosition: getComputedStyle(document.querySelector('.site-nav')).position,
     nav, title, quote, trigger,
     titleOverlap: intersects(nav, title),
     quoteOverlap: intersects(nav, quote),
@@ -106,11 +107,15 @@ try {
       }
     }
   }
-  const brokenCss = css.replace('position: static;', 'position: absolute;');
+  const brokenCss = css.replace(/position\s*:\s*static\s*;/, 'position:absolute;');
+  if (brokenCss === css) fail('geometry mutation did not change the compiled CSS');
   let mutationRejected = false;
   for (const [page, language] of [['index.html', 'ltr'], ['he/index.html', 'rtl']]) {
+    const mutated = await measure(browser, headerDocument(page, language, brokenCss), 393, true);
+    if (mutated.navPosition !== 'absolute') fail(`${language} mutation did not restore absolute positioning`);
+    if (!mutated.titleOverlap && !mutated.quoteOverlap) fail(`${language} mutation did not recreate the intended header overlap`);
     try {
-      assertGeometry(await measure(browser, headerDocument(page, language, brokenCss), 393, true), 393, language, true);
+      assertGeometry(mutated, 393, language, true);
     } catch {
       mutationRejected = true;
       break;
