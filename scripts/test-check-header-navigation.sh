@@ -70,6 +70,11 @@ mv "$fixture/page.tmp" "$fixture/work/_site/he/index.html"
 expect_failure 'generated Hebrew navigation destinations must remain exact'
 
 make_fixture
+sed 's/inset-inline-start: auto;/right: 15px;/' "$fixture/work/assets/css/style.scss" > "$fixture/style.tmp"
+mv "$fixture/style.tmp" "$fixture/work/assets/css/style.scss"
+expect_failure 'mobile RTL navigation must clear Minima’s physical right inset'
+
+make_fixture
 ruby - "$fixture/work/_site/assets/css/style.css" <<'RUBY'
 path = ARGV.fetch(0)
 before = File.read(path)

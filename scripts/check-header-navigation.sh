@@ -61,6 +61,12 @@ fail 'mobile toggle must place the checkbox before its associated label and menu
 source_css = File.read(source_css_path)
 mobile_source = source_css.split('@media screen and (max-width: 600px)', 2)[1]
 fail 'mobile navigation CSS is missing.' unless mobile_source
+source_header_top = mobile_source[/\.header-top\s*\{([^}]*)\}/m, 1]
+fail 'mobile header must reserve space for the collapsed navigation control.' unless source_header_top&.match?(/min-block-size:\s*36px;/) && source_header_top.match?(/padding-inline-end:\s*52px;/)
+source_nav = mobile_source[/\.site-nav\s*\{([^}]*)\}/m, 1]
+fail 'mobile navigation must anchor to logical inline end.' unless source_nav&.match?(/inset-inline-end:\s*15px;/)
+fail 'mobile navigation must clear the opposite logical inset in RTL.' unless source_nav&.match?(/inset-inline-start:\s*auto;/)
+fail 'mobile navigation must not retain a physical right inset.' if source_nav.match?(/\bright:\s*/)
 source_trigger = mobile_source.scan(/\.site-nav \.nav-trigger\s*\{([^}]*)\}/m).flatten.last
 fail 'mobile nav trigger must override Minima with display: block.' unless source_trigger&.match?(/display:\s*block;/)
 ['position: absolute;', 'inline-size: 1px;', 'block-size: 1px;', 'inset-inline-start: -9999px;', 'overflow: hidden;', 'clip: rect(0 0 0 0);', 'clip-path: inset(50%);'].each do |declaration|
@@ -73,6 +79,11 @@ compiled_css = File.read(compiled_css_path)
 desktop_css, mobile_compiled = compiled_css.split('@media screen and (max-width: 600px)', 2)
 fail 'compiled CSS must keep the expanded desktop menu non-focusable.' unless desktop_css&.match?(%r{\.site-nav \.nav-trigger\s*\{\s*display:\s*none\s*;?\s*\}})
 fail 'compiled mobile navigation CSS is missing.' unless mobile_compiled
+compiled_header_top = mobile_compiled.scan(/\.header-top\s*\{([^}]*)\}/m).flatten.last
+fail 'compiled mobile header must reserve space for navigation.' unless compiled_header_top&.match?(/min-block-size:\s*36px/) && compiled_header_top.match?(/padding-inline-end:\s*52px/)
+compiled_nav = mobile_compiled.scan(/\.site-nav\s*\{([^}]*)\}/m).flatten.last
+fail 'compiled mobile navigation must preserve logical RTL positioning.' unless compiled_nav&.match?(/inset-inline-end:\s*15px/) && compiled_nav.match?(/inset-inline-start:\s*auto/)
+fail 'compiled mobile navigation must not retain a physical right inset.' if compiled_nav.match?(/\bright:\s*/)
 compiled_trigger = mobile_compiled.scan(/\.site-nav \.nav-trigger\s*\{([^}]*)\}/m).flatten.last
 fail 'compiled mobile nav trigger must override Minima display:none.' unless compiled_trigger&.match?(/display:\s*block/)
 compact_trigger = compiled_trigger.gsub(/\s+/, '')
