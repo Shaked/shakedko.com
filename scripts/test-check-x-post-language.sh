@@ -52,8 +52,8 @@ write_post "$fixture_dir/_posts_en/valid.md" '' 'https://x.com/example/status/1'
 write_post "$fixture_dir/_posts_he/valid.md" '' 'https://x.com/example/status/2'
 run_validator
 
-write_post "$fixture_dir/_posts_he/duplicate.md" '' 'https://x.com/example/status/1#fragment'
-expect_failure 'fragments must not hide duplicate xlink values'
+write_post "$fixture_dir/_posts_he/duplicate.md" '' 'https://twitter.com/example/status/1/?ref_src=example#fragment'
+expect_failure 'host, query, and fragment variants must not hide duplicate xlink values'
 rm "$fixture_dir/_posts_he/duplicate.md"
 
 write_post "$fixture_dir/_posts_en/mismatched-language.md" he 'https://x.com/example/status/3'

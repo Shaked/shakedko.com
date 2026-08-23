@@ -4,6 +4,8 @@ set -eu
 include_file=${1:-_includes/post-list.html}
 css_file=${2:-assets/css/style.scss}
 site_dir=${3:-_site}
+english_dir=${4:-_posts_en}
+hebrew_dir=${5:-_posts_he}
 english_label='View the original post on X'
 hebrew_label='לצפייה בפוסט המקורי ב-X'
 
@@ -61,8 +63,10 @@ grep -q 'max-width: 100% !important;' "$css_file"
 check_page() {
   page=$1
   expected_label=$2
+  expected_cards=$3
 
-  awk -v page="$page" -v expected_label="$expected_label" '
+  awk -v page="$page" -v expected_label="$expected_label" -v expected_cards="$expected_cards" '
+    BEGIN { cards = 0 }
     /<li[^>]*x-post-card/ {
       if (in_card) {
         print page ": nested X card" > "/dev/stderr"
@@ -95,12 +99,62 @@ check_page() {
     }
 
     END {
-      if (in_card || failed) {
+      if (cards != expected_cards || in_card || failed) {
+        if (cards != expected_cards) {
+          print page ": expected " expected_cards " X cards but found " cards > "/dev/stderr"
+        }
         exit 1
       }
     }
-  ' "$page" || fail "X card validation failed for $page"
+  ' "$page" || fail "X card validation failed for $page."
 }
 
-check_page "$site_dir/index.html" "$english_label"
-check_page "$site_dir/he/index.html" "$hebrew_label"
+collect_xlinks() {
+  directory=$1
+  output_file=$2
+  files_file=$3
+
+  find "$directory" -type f \( -name '*.md' -o -name '*.markdown' \) -print > "$files_file"
+  while IFS= read -r file; do
+    awk '
+      NR == 1 && $0 == "---" { front_matter = 1; next }
+      front_matter && $0 == "---" { exit }
+      front_matter && /^[[:space:]]*xlink:[[:space:]]*/ {
+        xlink = $0
+        sub(/^[[:space:]]*xlink:[[:space:]]*/, "", xlink)
+        gsub(/^\"|\"$/, "", xlink)
+        print xlink
+        exit
+      }
+    ' "$file" >> "$output_file"
+  done < "$files_file"
+}
+
+english_xlinks=$(mktemp "${TMPDIR:-/tmp}/check-x-embed-cards.XXXXXX")
+hebrew_xlinks=$(mktemp "${TMPDIR:-/tmp}/check-x-embed-cards.XXXXXX")
+files_file=$(mktemp "${TMPDIR:-/tmp}/check-x-embed-cards.XXXXXX")
+trap 'rm -f "$english_xlinks" "$hebrew_xlinks" "$files_file"' EXIT HUP INT TERM
+
+collect_xlinks "$english_dir" "$english_xlinks" "$files_file"
+collect_xlinks "$hebrew_dir" "$hebrew_xlinks" "$files_file"
+
+count_cards() {
+  wc -l < "$1" | tr -d '[:space:]'
+}
+
+require_generated_xlinks() {
+  page=$1
+  xlinks_file=$2
+
+  while IFS= read -r xlink; do
+    matches=$(grep -F "href=\"$xlink\"" "$page" | wc -l | tr -d '[:space:]')
+    [ "$matches" -eq 2 ] || fail "$page: expected one generated X card and fallback for $xlink."
+  done < "$xlinks_file"
+}
+
+english_cards=$(count_cards "$english_xlinks")
+hebrew_cards=$(count_cards "$hebrew_xlinks")
+check_page "$site_dir/index.html" "$english_label" "$english_cards"
+check_page "$site_dir/he/index.html" "$hebrew_label" "$hebrew_cards"
+require_generated_xlinks "$site_dir/index.html" "$english_xlinks"
+require_generated_xlinks "$site_dir/he/index.html" "$hebrew_xlinks"

@@ -35,6 +35,7 @@ build:
 check-content:
 	scripts/check-x-post-language.sh
 	scripts/test-check-x-post-language.sh
+	scripts/test-check-x-embed-cards.sh
 
 # Clean generated files
 clean:

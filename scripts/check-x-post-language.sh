@@ -41,20 +41,36 @@ read_front_matter_value() {
 }
 
 normalize_xlink() {
-  printf '%s\n' "$1" | sed 's/[[:space:]]*$//; s/#.*$//; s:/*$::'
+  printf '%s\n' "$1" | awk '
+    {
+      url = $0
+      sub(/[[:space:]]+$/, "", url)
+      sub(/[?#].*$/, "", url)
+      sub(/\/+$/, "", url)
+
+      if (url ~ /^https?:\/\/(www\.)?(x\.com|twitter\.com)\/[^\/]+\/status\/[0-9]+$/) {
+        segments = split(url, path, "/")
+        print "x-status:" path[segments]
+      } else {
+        print url
+      }
+    }
+  '
 }
 
 require_collection_default posts_en en
 require_collection_default posts_he he
 
 entries_file=$(mktemp "${TMPDIR:-/tmp}/check-x-post-language.XXXXXX")
-trap 'rm -f "$entries_file"' EXIT HUP INT TERM
+files_file=$(mktemp "${TMPDIR:-/tmp}/check-x-post-language.XXXXXX")
+trap 'rm -f "$entries_file" "$files_file"' EXIT HUP INT TERM
 
 check_collection() {
   directory=$1
   expected_language=$2
 
-  find "$directory" -type f \( -name '*.md' -o -name '*.markdown' \) -print | while IFS= read -r file; do
+  find "$directory" -type f \( -name '*.md' -o -name '*.markdown' \) -print > "$files_file"
+  while IFS= read -r file; do
     xlink=$(read_front_matter_value xlink "$file")
     [ -n "$xlink" ] || continue
 
@@ -66,7 +82,7 @@ check_collection() {
     normalized_xlink=$(normalize_xlink "$xlink")
     [ -n "$normalized_xlink" ] || fail "$file: xlink must not be empty after normalization."
     printf '%s\t%s\n' "$normalized_xlink" "$file" >> "$entries_file"
-  done
+  done < "$files_file"
 }
 
 check_collection "$english_dir" en
