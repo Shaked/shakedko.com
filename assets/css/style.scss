@@ -239,13 +239,25 @@ summary:focus-visible {
   border-color: var(--color-border-strong);
 }
 
-.post-type {
+.post-item .post-type {
   display: inline-flex;
   position: absolute;
   inset-block-start: var(--space-3);
   inset-inline-start: var(--space-3);
   align-items: center;
   gap: 6px;
+  color: var(--color-purple-active);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.post-header .post-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-block-end: var(--space-2);
   color: var(--color-purple-active);
   font-size: 12px;
   font-weight: 700;

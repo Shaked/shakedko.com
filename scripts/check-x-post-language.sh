@@ -58,35 +58,19 @@ normalize_xlink() {
   '
 }
 
-snowflake_utc_day() {
-  status_id=$1
-  printf '%s\n' "$status_id" | awk '
-    /^[0-9]+$/ {
-      divisor = 4194304
-      remainder = 0
-      quotient = ""
-      for (digit_index = 1; digit_index <= length($0); digit_index++) {
-        value = remainder * 10 + substr($0, digit_index, 1)
-        digit = int(value / divisor)
-        remainder = value % divisor
-        if (quotient != "" || digit != 0) quotient = quotient digit
-      }
-      milliseconds = quotient + 1288834974657
-      days = int(milliseconds / 86400000)
-      z = days + 719468
-      era = z >= 0 ? int(z / 146097) : int((z - 146096) / 146097)
-      doe = z - era * 146097
-      yoe = int((doe - int(doe / 1460) + int(doe / 36524) - int(doe / 146096)) / 365)
-      year = yoe + era * 400
-      doy = doe - (365 * yoe + int(yoe / 4) - int(yoe / 100))
-      month_part = int((5 * doy + 2) / 153)
-      day = doy - int((153 * month_part + 2) / 5) + 1
-      month = month_part + (month_part < 10 ? 3 : -9)
-      year += month <= 2
-      printf "%04d-%02d-%02d\n", year, month, day
-      exit
-    }
-  '
+validate_snowflake_timestamp() {
+  ruby - "$1" "$2" "$3" <<'RUBY'
+status_id, front_matter_date, filename_day = ARGV
+abort 'X status ID must be canonical decimal and nonzero.' unless status_id.match?(/\A[1-9]\d*\z/)
+id = Integer(status_id, 10)
+abort 'X status ID exceeds the signed 64-bit range.' if id > 9_223_372_036_854_775_807
+milliseconds = (id >> 22) + 1_288_834_974_657
+seconds, milliseconds_part = milliseconds.divmod(1_000)
+utc = Time.at(seconds).utc
+expected = "#{utc.strftime('%Y-%m-%d %H:%M:%S')}.#{format('%03d', milliseconds_part)} +0000"
+abort "date must equal canonical Snowflake timestamp #{expected}." unless front_matter_date == expected
+abort "filename day must match Snowflake UTC day #{utc.strftime('%Y-%m-%d')}." unless filename_day == utc.strftime('%Y-%m-%d')
+RUBY
 }
 
 require_collection_default posts_en en
@@ -115,13 +99,9 @@ check_collection() {
     case "$normalized_xlink" in
       x-status:*)
         status_id=${normalized_xlink#x-status:}
-        expected_day=$(snowflake_utc_day "$status_id")
-        [ -n "$expected_day" ] || fail "$file: X status ID must be numeric."
         front_matter_date=$(read_front_matter_value date "$file")
-        declared_day=$(printf '%s' "$front_matter_date" | cut -c 1-10)
         filename_day=$(basename "$file" | cut -c 1-10)
-        [ "$declared_day" = "$expected_day" ] || fail "$file: date day $declared_day does not match X status UTC day $expected_day."
-        [ "$filename_day" = "$expected_day" ] || fail "$file: filename day $filename_day does not match X status UTC day $expected_day."
+        validate_snowflake_timestamp "$status_id" "$front_matter_date" "$filename_day" || fail "$file: X Snowflake timestamp validation failed."
         ;;
     esac
     printf '%s\t%s\n' "$normalized_xlink" "$file" >> "$entries_file"

@@ -86,7 +86,7 @@ marker_contract() {
 
 marker_contract "$list" post
 marker_contract "$post_layout" page
-post_type_block=$(awk '/^\.post-type \{/,/^\}/ { print }' "$styles")
+post_type_block=$(awk '/^\.post-item \.post-type \{/,/^\}/ { print }' "$styles")
 printf '%s\n' "$post_type_block" | grep -q 'position: absolute;' || fail 'post type marker must sit in the card corner.'
 printf '%s\n' "$post_type_block" | grep -q 'inset-block-start:' || fail 'post type marker must use logical vertical placement.'
 printf '%s\n' "$post_type_block" | grep -q 'inset-inline-start:' || fail 'post type marker must mirror in RTL.'
@@ -95,6 +95,9 @@ grep -q 'padding-block-start: 52px;' "$styles" || fail 'standard cards must rese
 grep -q 'padding-block-start: 42px;' "$styles" || fail 'X cards must reserve space for the corner marker.'
 badge_block=$(awk '/^\.post-badge \{/,/^\}/ { print }' "$styles")
 printf '%s\n' "$badge_block" | grep -q 'inset-inline-end:' || fail 'pinned badges must coexist on the opposite logical corner.'
+detail_type_block=$(awk '/^\.post-header \.post-type \{/,/^\}/ { print }' "$styles")
+printf '%s\n' "$detail_type_block" | grep -q 'display: inline-flex;' || fail 'post-detail type marker must remain inline in the header.'
+! printf '%s\n' "$detail_type_block" | grep -q 'position: absolute;' || fail 'post-detail type marker must not escape its header.'
 grep -q 'border-radius: 999px' "$styles" || fail 'tags must render as pills.'
 grep -q 'background-color: var(--color-surface)' "$styles" || fail 'tag pills must use the white surface.'
 grep -q 'post_type: "thoughts"' "$config" || fail 'collections must default to thoughts.'
@@ -117,5 +120,6 @@ if [ -d "$site_dir" ]; then
   ! grep -q '>Tags:' "$english_page" || fail 'generated tags must not include a label or emoji.'
   grep -q 'dir="rtl"' "$hebrew_page" || fail 'generated Hebrew post must remain RTL.'
   grep -q 'assets/icons/post-types/security.svg' "$hebrew_page" || fail 'known Hebrew post type did not render.'
+  awk '/<header class="post-header">/ { header = 1 } header && /class="post-type"/ { marker = 1 } header && /<\/header>/ { exit(marker ? 0 : 1) } END { exit(marker ? 0 : 1) }' "$english_page" || fail 'generated post-detail marker must remain inside the header.'
   grep -q 'class="post-item.*x-post-card"' "$site_dir/he/index.html" || fail 'generated Hebrew X card is missing.'
 fi
