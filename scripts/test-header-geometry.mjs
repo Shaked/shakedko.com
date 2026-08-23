@@ -59,6 +59,7 @@ const probe = `(() => {
   const title = rect('.site-title');
   const quote = rect('.header-quote');
   const trigger = rect('.trigger');
+  const triggerStyle = getComputedStyle(document.querySelector('.trigger'));
   return JSON.stringify({
     width: innerWidth,
     scrollWidth: document.documentElement.scrollWidth,
@@ -69,6 +70,9 @@ const probe = `(() => {
     overflowing: [...document.querySelectorAll('*')].map((element) => ({ name: element.className || element.tagName, right: element.getBoundingClientRect().right })).filter((item) => item.right > innerWidth),
     headerZ: getComputedStyle(document.querySelector('.site-header')).zIndex,
     navZ: getComputedStyle(document.querySelector('.site-nav')).zIndex,
+    panelBackground: triggerStyle.backgroundColor,
+    panelBorder: triggerStyle.borderTopWidth,
+    panelShadow: triggerStyle.boxShadow,
     rowHeights: [...document.querySelectorAll('.trigger > .page-link')].map((link) => link.getBoundingClientRect().height),
     socialRowHeight: document.querySelector('.mobile-social-links').getBoundingClientRect().height,
     header, nav, title, quote, trigger, panel: trigger,
@@ -103,6 +107,7 @@ function assertGeometry(measurement, width, language, expanded) {
     if (measurement.trigger.top < measurement.title.bottom) fail(`${state}: expanded links are not below the title row`);
     if (measurement.panel.width > 242 || measurement.panel.height > 235) fail(`${state}: panel is not compact`);
     if (measurement.socialRowHeight !== 44 || measurement.rowHeights.some((height) => height !== 44)) fail(`${state}: rows lost their shared touch rhythm`);
+    if (!/^rgb\(/.test(measurement.panelBackground) || measurement.panelBorder === '0px' || measurement.panelShadow === 'none') fail(`${state}: panel is not an opaque themed surface`);
   }
 }
 
@@ -118,21 +123,28 @@ try {
       if (!expanded.quoteOverlap) fail(`${language} ${width}px: overlay must cover content while open`);
     }
   }
-  const brokenCss = `${css}\n@media screen and (max-width: 600px) { .header-top:has(.nav-trigger:checked) { padding-block-end: 240px; } }`;
+  const brokenCss = `${css}\n@media screen and (max-width: 600px) { body:has(.nav-trigger:checked) .header-top { min-block-size: 300px !important; } }`;
   if (brokenCss === css) fail('geometry mutation did not change the compiled CSS');
   let mutationRejected = false;
   for (const [page, language] of [['index.html', 'ltr'], ['he/index.html', 'rtl']]) {
+    const baseline = await measure(browser, headerDocument(page, language, brokenCss), 393, false);
     const mutated = await measure(browser, headerDocument(page, language, brokenCss), 393, true);
     if (mutated.quoteOverlap) fail(`${language} mutation did not recreate push-down behavior`);
+    if (Math.abs(baseline.quote.top - mutated.quote.top) < 1 && Math.abs(baseline.header.height - mutated.header.height) < 1) fail(`${language} mutation did not create measurable reflow`);
     mutationRejected = true;
-    try {
-      assertGeometry(mutated, 393, language, true);
-    } catch {
-      mutationRejected = true;
-      break;
-    }
   }
   if (!mutationRejected) fail('geometry mutation did not recreate the header overlap');
+  const lowZCss = css.replace(/z-index\s*:\s*3\s*;?/, 'z-index:0;');
+  if (lowZCss === css) fail('low-z mutation did not change the compiled CSS');
+  const lowZ = await measure(browser, headerDocument('index.html', 'ltr', lowZCss), 393, true);
+  if (lowZ.navZ !== '0') fail('low-z mutation did not produce a low computed stacking level');
+  let lowZRejected = false;
+  try {
+    assertGeometry(lowZ, 393, 'ltr', true);
+  } catch {
+    lowZRejected = true;
+  }
+  if (!lowZRejected) fail('low-z mutation was not rejected');
   process.stdout.write('header geometry checks passed\n');
 } finally {
   browser.child.kill();

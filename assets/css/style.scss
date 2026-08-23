@@ -582,7 +582,10 @@ summary:focus-visible {
     inline-size: 240px;
     max-inline-size: none;
     padding-block-end: var(--space-1);
-    border-block-start: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
   }
 
   .site-nav .page-link {
