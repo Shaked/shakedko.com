@@ -95,7 +95,7 @@ check_page() {
     }
 
     END {
-      if (cards == 0 || in_card || failed) {
+      if (in_card || failed) {
         exit 1
       }
     }

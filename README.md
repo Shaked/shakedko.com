@@ -51,6 +51,21 @@ To run locally:
 3. Write your content in Markdown below the front matter
 4. Commit and push to publish
 
+### Sharing an X post
+
+X-post entries are language-specific. Create the document in exactly one
+collection and include the original URL in `xlink`:
+
+- English posts go in `_posts_en/` and are published under `/`.
+- Hebrew posts go in `_posts_he/` and are published under `/he/`.
+
+The collection defaults set the effective `lang` value (`en` or `he`). Do not
+copy an X-post document into the other collection. If a document declares
+`lang` explicitly, it must match its collection. Use the canonical status URL
+without fragments (for example, no trailing `#`). Run
+`scripts/check-x-post-language.sh` before committing; it rejects duplicate
+normalized X URLs and collection/language mismatches.
+
 ## Redirecting Old URLs
 
 If you're migrating content from an old blog and want to preserve old URLs, you can use the `redirect_from` feature:
