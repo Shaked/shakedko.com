@@ -1,6 +1,6 @@
 <ul class="post-list">
   {% for post in include.posts %}
-    <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %}" {% if post.xlink %}onclick="window.open('{{ post.xlink }}', '_blank')"{% else %}onclick="window.location='{{ post.url | relative_url }}'"{% endif %}>
+    <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %}{% if post.xlink %} x-post-card{% endif %}"{% unless post.xlink %} onclick="window.location='{{ post.url | relative_url }}'"{% endunless %}>
       {% if include.show_pinned_badge and post.pinned %}
         <div class="post-badge">📌 {{ include.pinned_label }}</div>
       {% endif %}
@@ -14,9 +14,10 @@
       {% endunless %}
       {% if post.xlink %}
         <div class="twitter-embed-container">
-          <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
+          <blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-width="550">
             <a href="{{ post.xlink }}"></a>
           </blockquote>
+          <a class="x-post-fallback" href="{{ post.xlink }}" target="_blank" rel="noopener noreferrer">View the original post on X</a>
         </div>
       {% elsif post.summary %}
         <p class="post-excerpt">{{ post.summary | markdownify | strip_html }}</p>
