@@ -95,7 +95,7 @@ fail 'compiled CSS must visibly show mobile keyboard focus on the menu label.' u
 
 expected.each do |page, destinations|
   html = File.read(File.join(site_dir, page))
-  nav = html[/<nav class="site-nav">.*?<\/nav>/m]
+  nav = html[/<nav\b[^>]*\bclass="site-nav"[^>]*>.*?<\/nav>/m]
   fail "#{page}: navigation is missing" unless nav
   links = nav.scan(/<a\b([^>]*)>(.*?)<\/a>/m)
   actual = links.map { |attributes, _| attributes[/\bhref="([^"]*)"/, 1] }
