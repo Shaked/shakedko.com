@@ -1,0 +1,14 @@
+---
+layout: default
+title: ארכיון
+lang: he
+---
+
+<div class="home" dir="rtl">
+  {% assign archived_posts = site.posts_he | where: "archived", true | sort: "date" | reverse %}
+  {% include post-list.html posts=archived_posts empty_message="אין פוסטים בארכיון עדיין." %}
+
+  <div class="language-switcher">
+    <a href="/archive/">🇺🇸 English</a>
+  </div>
+</div>
