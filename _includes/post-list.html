@@ -1,7 +1,10 @@
 <ul class="post-list">
   {% for post in include.posts %}
-    <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %}{% if post.xlink %} x-post-card{% endif %}"
-      {% unless post.xlink %}onclick="window.location='{{ post.url | relative_url }}'"{% endunless %}>
+    {% if post.xlink %}
+      <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %} x-post-card">
+    {% else %}
+      <li class="post-item{% if include.show_pinned_badge and post.pinned %} pinned-post{% endif %}" onclick="window.location='{{ post.url | relative_url }}'">
+    {% endif %}
       {% if include.show_pinned_badge and post.pinned %}
         <div class="post-badge">📌 {{ include.pinned_label }}</div>
       {% endif %}

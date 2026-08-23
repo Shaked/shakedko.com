@@ -16,9 +16,43 @@ grep -q 'x-post-card' "$include_file"
 grep -q 'data-width="550"' "$include_file"
 grep -q 'class="x-post-fallback"' "$include_file"
 grep -q 'target="_blank" rel="noopener noreferrer"' "$include_file"
-if grep -Eq '{% if post\.xlink %}[^[:cntrl:]]*onclick=' "$include_file"; then
-  fail 'X cards must not have an inline click handler.'
-fi
+awk '
+  /^[[:space:]]*<li[[:space:]]/ {
+    in_tag = 1
+    tag = $0 "\n"
+    if ($0 ~ />/) {
+      if (tag ~ /x-post-card/ && tag ~ /onclick[[:space:]]*=/) {
+        print "X cards must not have an inline click handler." > "/dev/stderr"
+        in_tag = 0
+        exit 1
+      }
+      in_tag = 0
+      tag = ""
+    }
+    next
+  }
+
+  in_tag {
+    tag = tag $0 "\n"
+  }
+
+  in_tag && />/ {
+    if (tag ~ /x-post-card/ && tag ~ /onclick[[:space:]]*=/) {
+      print "X cards must not have an inline click handler." > "/dev/stderr"
+      in_tag = 0
+      exit 1
+    }
+    in_tag = 0
+    tag = ""
+  }
+
+  END {
+    if (in_tag) {
+      print "Unterminated list-item tag." > "/dev/stderr"
+      exit 1
+    }
+  }
+' "$include_file" || fail 'X card source validation failed.'
 
 grep -q 'width: min(100%, 550px);' "$css_file"
 grep -q 'margin-inline: auto;' "$css_file"
