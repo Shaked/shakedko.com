@@ -9,7 +9,7 @@ list="$root/_includes/post-list.html"
 post_layout="$root/_layouts/post.html"
 styles="$root/assets/css/style.scss"
 config="$root/_config.yml"
-keys='featured ai security infrastructure development craft building thoughts'
+required_keys='featured ai security infrastructure development craft building thoughts'
 
 fail() {
   printf '%s\n' "$1" >&2
@@ -20,37 +20,84 @@ fail() {
 [ -f "$list" ] || fail 'post list template is missing.'
 [ -f "$post_layout" ] || fail 'post layout is missing.'
 
-for key in $keys; do
-  grep -q "^$key:$" "$mapping" || fail "missing post type: $key"
-  icon=$(awk -v key="$key" '$0 == key ":" { found = 1; next } found && /^  icon: / { sub(/^  icon: /, ""); print; exit }' "$mapping")
-  [ -n "$icon" ] || fail "$key has no icon reference."
-  [ -f "$icons/$icon" ] || fail "$key references a missing icon: $icon"
+entries=$(mktemp "${TMPDIR:-/tmp}/post-types-entries.XXXXXX")
+trap 'rm -f "$entries"' EXIT HUP INT TERM
+
+awk '
+  function finish() {
+    if (key == "") return
+    if (label == "" || icon == "") {
+      printf "%s is missing a label or icon.\n", key > "/dev/stderr"
+      failed = 1
+    } else {
+      print key "\t" label "\t" icon
+    }
+  }
+  /^[a-z][a-z0-9_-]*:$/ {
+    finish()
+    key = substr($0, 1, length($0) - 1)
+    label = ""
+    icon = ""
+    next
+  }
+  key != "" && /^  label: [^[:space:]]/ {
+    label = $0
+    sub(/^  label: /, "", label)
+    next
+  }
+  key != "" && /^  icon: [a-z0-9_-]+\.svg$/ {
+    icon = $0
+    sub(/^  icon: /, "", icon)
+  }
+  END { finish(); exit(failed ? 1 : 0) }
+' "$mapping" > "$entries" || fail 'post type mapping entries must have a label and a local SVG icon.'
+
+for key in $required_keys; do
+  awk -F '\t' -v key="$key" '$1 == key { found = 1 } END { exit(found ? 0 : 1) }' "$entries" || fail "missing required post type: $key"
 done
 
-[ "$(grep -c '^[a-z].*:$' "$mapping")" -eq 8 ] || fail 'post type mapping must contain exactly the initial stable keys.'
+while IFS="$(printf '\t')" read -r key label icon; do
+  [ -n "$key" ] && [ -n "$label" ] && [ -n "$icon" ] || fail 'post type mapping contains an invalid entry.'
+  [ -f "$icons/$icon" ] || fail "$key references a missing icon: $icon"
+done < "$entries"
 
 for icon in "$icons"/*.svg; do
   [ -f "$icon" ] || fail 'post type icons are missing.'
   grep -q '<svg ' "$icon" || fail "$icon is not an SVG."
   grep -q 'aria-hidden="true"' "$icon" || fail "$icon must be decorative."
   grep -q 'focusable="false"' "$icon" || fail "$icon must not be focusable."
-  if grep -Eqi '<script|<foreignObject|<image|<use|[[:space:]](href|xlink:href)=|url\(|javascript:' "$icon"; then
-    fail "$icon contains an unsafe script or external reference."
+  if grep -Eqi '<script|<foreignObject|<(image|use|iframe|object|embed|audio|video|canvas|link|meta|base|style)|[[:space:]]on[a-z0-9:_-]*[[:space:]]*=|[[:space:]](href|src|xlink:href)[[:space:]]*=|url\(|javascript:|data:' "$icon"; then
+    fail "$icon contains an executable or external reference."
   fi
 done
 
-grep -q 'site.data.post_types\[post.post_type\]' "$list" || fail 'list marker does not use the central mapping.'
-grep -q 'site.data.post_types\[page.post_type\]' "$post_layout" || fail 'post marker does not use the central mapping.'
-grep -q '{% if post_type %}' "$list" || fail 'list marker must gracefully hide unknown post types.'
-grep -q '{% if post_type %}' "$post_layout" || fail 'post marker must gracefully hide unknown post types.'
-grep -q 'aria-hidden="true"' "$list" || fail 'list marker icon must be decorative.'
-grep -q 'aria-hidden="true"' "$post_layout" || fail 'post marker icon must be decorative.'
+marker_contract() {
+  template=$1
+  marker=$2
+  grep -q "site.data.post_types\[$marker.post_type\]" "$template" || fail "$template does not use the central mapping."
+  grep -q '{% if post_type %}' "$template" || fail "$template must hide missing or unknown post types."
+  awk '
+    /<div class="post-type">/ { in_marker = 1 }
+    in_marker { block = block $0 "\n" }
+    in_marker && /<\/div>/ { found = 1; in_marker = 0 }
+    END { if (!found || block !~ /<img[^>]*alt=""[^>]*aria-hidden="true"/ || block !~ /<span>[^<]*post_type.label[^<]*<\/span>/) exit 1 }
+  ' "$template" || fail "$template must keep a decorative icon and visible type label."
+}
+
+marker_contract "$list" post
+marker_contract "$post_layout" page
 grep -q 'margin-block-end' "$styles" || fail 'post type marker must use logical RTL-safe spacing.'
+! awk '/^\.post-type \{/,/^\}/ { print }' "$styles" | grep -Eq 'margin-(left|right)|border-(left|right)' || fail 'post type marker must remain RTL-safe.'
 grep -q 'border-radius: 999px' "$styles" || fail 'tags must render as pills.'
 grep -q 'background-color: var(--color-surface)' "$styles" || fail 'tag pills must use the white surface.'
 grep -q 'post_type: "thoughts"' "$config" || fail 'collections must default to thoughts.'
-! grep -q 'Tags:' "$post_layout" || fail 'tag label must not be rendered.'
-! awk '/^\.post-type \{/,/^\}/ { print }' "$styles" | grep -Eq 'margin-(left|right)|border-(left|right)' || fail 'post type marker must remain RTL-safe.'
+awk '
+  /<div class="post-content"/ { content = 1 }
+  content && /<\/div>/ { content_done = 1; next }
+  content_done && /<aside class="post-tags"/ { tags_after_content = 1 }
+  END { exit(tags_after_content ? 0 : 1) }
+' "$post_layout" || fail 'tags must remain below article content.'
+! grep -Eq 'Tags:|[📌🏷️#]' "$post_layout" || fail 'tag rendering must not include a label or emoji.'
 
 if [ -d "$site_dir" ]; then
   english_page="$site_dir/2013/11/23/tinder-privacy-issues/index.html"
