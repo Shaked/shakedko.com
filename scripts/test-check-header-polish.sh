@@ -39,3 +39,8 @@ make_fixture
 sed 's/aria-label="Primary navigation"//' "$fixture/work/_includes/header.html" > "$fixture/header.tmp"
 mv "$fixture/header.tmp" "$fixture/work/_includes/header.html"
 expect_failure 'navigation landmark must retain its accessible name'
+
+make_fixture
+sed 's/position: static;/position: absolute;/' "$fixture/work/assets/css/style.scss" > "$fixture/style.tmp"
+mv "$fixture/style.tmp" "$fixture/work/assets/css/style.scss"
+expect_failure 'expanded mobile menu must create its own header row'

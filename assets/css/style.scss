@@ -519,7 +519,16 @@ summary:focus-visible {
   }
 
   .site-nav:has(.nav-trigger:checked) {
+    position: static;
+    order: 2;
+    margin-inline-start: auto;
     inline-size: min(280px, calc(100% - var(--space-6)));
+    max-inline-size: 100%;
+  }
+
+  .header-top:has(.nav-trigger:checked) {
+    flex-wrap: wrap;
+    padding-inline-end: 0;
   }
 
   /* Override Minima's `.site-nav .nav-trigger { display: none; }` so the

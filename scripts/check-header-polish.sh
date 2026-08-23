@@ -54,7 +54,11 @@ mobile_nav = mobile[/\.site-nav\s*\{([^}]*)\}/m, 1]
 fail 'mobile navigation must preserve logical RTL anchoring.' unless mobile_nav&.match?(/inset-inline-end:\s*15px;/) && mobile_nav.match?(/inset-inline-start:\s*auto;/)
 fail 'mobile navigation must not use a physical right inset.' if mobile_nav.match?(/\bright:\s*/)
 fail 'mobile menu needs a bounded control size and shared shadow.' unless mobile_nav.match?(/inline-size:\s*36px;/) && mobile_nav.match?(/max-inline-size:/) && mobile_nav.match?(/box-shadow:\s*var\(--shadow-md\);/)
-fail 'expanded mobile menu needs a bounded inline size.' unless mobile.match?(/\.site-nav:has\(\.nav-trigger:checked\)\s*\{[^}]*inline-size:\s*min\(280px,\s*calc\(100%\s*-\s*var\(--space-6\)\)\);/m)
+expanded_nav = mobile[/\.site-nav:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
+fail 'expanded mobile menu needs its own in-flow row.' unless expanded_nav&.match?(/position:\s*static;/) && expanded_nav.match?(/order:\s*2;/) && expanded_nav.match?(/margin-inline-start:\s*auto;/)
+fail 'expanded mobile menu needs a bounded inline size.' unless expanded_nav.match?(/inline-size:\s*min\(280px,\s*calc\(100%\s*-\s*var\(--space-6\)\)\);/) && expanded_nav.match?(/max-inline-size:\s*100%;/)
+expanded_top = mobile[/\.header-top:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
+fail 'expanded mobile menu must create a separate header row.' unless expanded_top&.match?(/flex-wrap:\s*wrap;/) && expanded_top.match?(/padding-inline-end:\s*0;/)
 
 compiled_header = compiled.scan(/\.site-header\s*\{([^}]*)\}/m).flatten.last
 fail 'compiled header lost its stacking contract.' unless compiled_header&.match?(/isolation:\s*isolate/) && compiled_header.match?(/z-index:\s*1/)
