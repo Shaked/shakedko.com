@@ -8,7 +8,7 @@ title: Home
   {% assign pinned_posts = visible_posts | where: "pinned", true %}
   {% assign regular_posts = visible_posts | where_exp: "post", "post.pinned != true" | sort: "date" | reverse %}
   {% assign home_posts = pinned_posts | concat: regular_posts %}
-  {% include post-list.html posts=home_posts show_pinned_badge=true pinned_label="Pinned" empty_message="There are no posts yet." %}
+  {% include post-list.html posts=home_posts show_pinned_badge=true pinned_label="Pinned" empty_message="There are no posts yet." x_fallback_label="View the original post on X" %}
 
   <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
 
