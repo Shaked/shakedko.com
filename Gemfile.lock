@@ -276,7 +276,6 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
-  jekyll-feed
   jekyll-redirect-from
   jekyll-seo-tag
   webrick (~> 1.8)

@@ -13,14 +13,8 @@ github_handle: "@Shaked"
 markdown: kramdown
 theme: minima
 plugins:
-  - jekyll-feed
   - jekyll-seo-tag
   - jekyll-redirect-from
-
-feed:
-  collections:
-    posts_he:
-      path: "/he/feed.xml"
 
 # Pagination
 paginate: 5
