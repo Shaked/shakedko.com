@@ -4,6 +4,7 @@ title: "How To Write A Privacy Oriented API When Using SSO"
 date: 2015-08-24 00:57:00 -0500
 categories: Privacy
 tags: [Facebook, SSO, Security, API]
+post_type: security
 author: Shaked Klein Orbach
 image: /assets/images/facebook-api/privacy.jpg
 summary: |

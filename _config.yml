@@ -43,6 +43,7 @@ defaults:
       layout: "post"
       author: "Shaked Klein Orbach"
       lang: "en"
+      post_type: "thoughts"
   - scope:
       path: ""
       type: "posts_he"
@@ -50,3 +51,4 @@ defaults:
       layout: "post"
       author: "Shaked Klein Orbach"
       lang: "he"
+      post_type: "thoughts"
