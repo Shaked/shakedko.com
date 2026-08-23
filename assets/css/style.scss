@@ -191,6 +191,7 @@ summary:focus-visible {
 .post-item {
   margin-bottom: var(--space-6);
   padding: var(--space-5);
+  padding-block-start: 52px;
   background-color: var(--color-surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -220,6 +221,7 @@ summary:focus-visible {
   width: min(100%, 550px);
   margin-inline: auto;
   padding: var(--space-3);
+  padding-block-start: 42px;
   cursor: default;
 }
 
@@ -239,9 +241,11 @@ summary:focus-visible {
 
 .post-type {
   display: inline-flex;
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
   align-items: center;
   gap: 6px;
-  margin-block-end: var(--space-2);
   color: var(--color-purple-active);
   font-size: 12px;
   font-weight: 700;
@@ -257,6 +261,9 @@ summary:focus-visible {
 
 .post-badge {
   display: inline-block;
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
   background-color: var(--color-purple);
   color: var(--color-surface);
   font-size: 11px;
@@ -265,7 +272,7 @@ summary:focus-visible {
   letter-spacing: 0.5px;
   padding: 4px 10px;
   border-radius: 12px;
-  margin-bottom: var(--space-2);
+  margin: 0;
 }
 
 .post-excerpt {
@@ -553,8 +560,7 @@ summary:focus-visible {
 }
 
 [dir="rtl"] .post-badge {
-  margin-left: 10px;
-  margin-right: 0;
+  margin: 0;
 }
 
 .no-posts {

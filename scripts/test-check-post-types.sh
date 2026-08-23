@@ -48,7 +48,7 @@ mv "$fixture/post.tmp" "$fixture/work/_layouts/post.html"
 expect_failure 'visible post type labels must remain available'
 
 make_fixture
-awk '{ gsub(/margin-block-end/, "margin-right"); print }' "$fixture/work/assets/css/style.scss" > "$fixture/style.tmp"
+awk '{ gsub(/inset-inline-start/, "right"); print }' "$fixture/work/assets/css/style.scss" > "$fixture/style.tmp"
 mv "$fixture/style.tmp" "$fixture/work/assets/css/style.scss"
 expect_failure 'RTL-safe logical placement must not regress'
 

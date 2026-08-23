@@ -86,8 +86,15 @@ marker_contract() {
 
 marker_contract "$list" post
 marker_contract "$post_layout" page
-grep -q 'margin-block-end' "$styles" || fail 'post type marker must use logical RTL-safe spacing.'
-! awk '/^\.post-type \{/,/^\}/ { print }' "$styles" | grep -Eq 'margin-(left|right)|border-(left|right)' || fail 'post type marker must remain RTL-safe.'
+post_type_block=$(awk '/^\.post-type \{/,/^\}/ { print }' "$styles")
+printf '%s\n' "$post_type_block" | grep -q 'position: absolute;' || fail 'post type marker must sit in the card corner.'
+printf '%s\n' "$post_type_block" | grep -q 'inset-block-start:' || fail 'post type marker must use logical vertical placement.'
+printf '%s\n' "$post_type_block" | grep -q 'inset-inline-start:' || fail 'post type marker must mirror in RTL.'
+! printf '%s\n' "$post_type_block" | grep -Eq '(top|left|right):' || fail 'post type marker must remain RTL-safe.'
+grep -q 'padding-block-start: 52px;' "$styles" || fail 'standard cards must reserve space for the corner marker.'
+grep -q 'padding-block-start: 42px;' "$styles" || fail 'X cards must reserve space for the corner marker.'
+badge_block=$(awk '/^\.post-badge \{/,/^\}/ { print }' "$styles")
+printf '%s\n' "$badge_block" | grep -q 'inset-inline-end:' || fail 'pinned badges must coexist on the opposite logical corner.'
 grep -q 'border-radius: 999px' "$styles" || fail 'tags must render as pills.'
 grep -q 'background-color: var(--color-surface)' "$styles" || fail 'tag pills must use the white surface.'
 grep -q 'post_type: "thoughts"' "$config" || fail 'collections must default to thoughts.'
@@ -110,4 +117,5 @@ if [ -d "$site_dir" ]; then
   ! grep -q '>Tags:' "$english_page" || fail 'generated tags must not include a label or emoji.'
   grep -q 'dir="rtl"' "$hebrew_page" || fail 'generated Hebrew post must remain RTL.'
   grep -q 'assets/icons/post-types/security.svg' "$hebrew_page" || fail 'known Hebrew post type did not render.'
+  grep -q 'class="post-item.*x-post-card"' "$site_dir/he/index.html" || fail 'generated Hebrew X card is missing.'
 fi
