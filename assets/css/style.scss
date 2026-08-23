@@ -94,13 +94,19 @@ summary:focus-visible {
   color: var(--color-text);
 }
 
-.site-title:hover {
+.site-title:visited {
+  color: var(--color-text);
+}
+
+.site-title:hover,
+.site-title:visited:hover {
   text-decoration: none;
   color: var(--color-purple-hover);
 }
 
-.site-title:visited {
-  color: var(--color-text);
+.site-title:active,
+.site-title:visited:active {
+  color: var(--color-purple-active);
 }
 
 .site-quote {
@@ -133,12 +139,18 @@ summary:focus-visible {
   text-decoration: none;
 }
 
-.site-nav .page-link:hover {
+.site-nav .page-link:visited {
+  color: var(--color-text);
+}
+
+.site-nav .page-link:hover,
+.site-nav .page-link:visited:hover {
   color: var(--color-purple-hover);
 }
 
-.site-nav .page-link:visited {
-  color: var(--color-text);
+.site-nav .page-link:active,
+.site-nav .page-link:visited:active {
+  color: var(--color-purple-active);
 }
 
 .page-content {
@@ -241,12 +253,18 @@ summary:focus-visible {
   transition: color 0.2s ease;
 }
 
-.post-link:hover {
+.post-link:visited {
+  color: var(--color-text);
+}
+
+.post-link:hover,
+.post-link:visited:hover {
   color: var(--color-purple);
 }
 
-.post-link:visited {
-  color: var(--color-text);
+.post-link:active,
+.post-link:visited:active {
+  color: var(--color-purple-active);
 }
 
 .post-title {
@@ -348,7 +366,7 @@ summary:focus-visible {
 }
 
 .social-links a {
-  color: var(--color-text-subtle);
+  color: var(--color-text-muted);
   text-decoration: none;
   display: flex;
   align-items: center;
