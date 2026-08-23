@@ -64,11 +64,12 @@ const probe = `(() => {
     direction: document.documentElement.dir,
     checked: document.querySelector('.nav-trigger').checked,
     links: document.querySelectorAll('.trigger a').length,
+    overflowing: [...document.querySelectorAll('*')].map((element) => ({ name: element.className || element.tagName, right: element.getBoundingClientRect().right })).filter((item) => item.right > innerWidth),
     headerZ: getComputedStyle(document.querySelector('.site-header')).zIndex,
     navZ: getComputedStyle(document.querySelector('.site-nav')).zIndex,
     rowHeights: [...document.querySelectorAll('.trigger > .page-link')].map((link) => link.getBoundingClientRect().height),
     socialRowHeight: document.querySelector('.mobile-social-links').getBoundingClientRect().height,
-    nav, title, quote, trigger,
+    nav, title, quote, trigger, panel: trigger,
     titleOverlap: intersects(trigger, title),
     quoteOverlap: intersects(trigger, quote),
   });
@@ -89,7 +90,7 @@ async function measure(browser, url, width, expanded) {
 
 function assertGeometry(measurement, width, language, expanded) {
   const state = `${language} ${width}px ${expanded ? 'expanded' : 'collapsed'}`;
-  if (measurement.width !== width || measurement.scrollWidth > width) fail(`${state}: viewport overflow`);
+  if (measurement.width !== width || measurement.scrollWidth > width) fail(`${state}: viewport overflow (${measurement.scrollWidth}px; panel ${measurement.panel.left}-${measurement.panel.right}; ${JSON.stringify(measurement.overflowing)})`);
   if (measurement.direction !== language) fail(`${state}: wrong document direction`);
   if (measurement.checked !== expanded) fail(`${state}: wrong menu state`);
   if (measurement.links !== 5) fail(`${state}: expected five links`);
@@ -98,7 +99,7 @@ function assertGeometry(measurement, width, language, expanded) {
   if (measurement.headerZ !== '1' || measurement.navZ !== '1') fail(`${state}: stacking contract changed`);
   if (expanded) {
     if (measurement.trigger.top < measurement.title.bottom) fail(`${state}: expanded links are not below the title row`);
-    if (measurement.nav.width > 242 || measurement.nav.height > 235) fail(`${state}: panel is not compact`);
+    if (measurement.panel.width > 242 || measurement.panel.height > 235) fail(`${state}: panel is not compact`);
     if (measurement.socialRowHeight !== 44 || measurement.rowHeights.some((height) => height !== 44)) fail(`${state}: rows lost their shared touch rhythm`);
   }
 }
@@ -112,7 +113,7 @@ try {
       }
     }
   }
-  const brokenCss = css.replace(/padding-block-end\s*:\s*240px\s*;/, 'padding-block-end:0;');
+  const brokenCss = css.replace(/padding-block-end\s*:\s*240px\s*;?/, 'padding-block-end:0;');
   if (brokenCss === css) fail('geometry mutation did not change the compiled CSS');
   let mutationRejected = false;
   for (const [page, language] of [['index.html', 'ltr'], ['he/index.html', 'rtl']]) {

@@ -55,10 +55,11 @@ fail 'mobile navigation must preserve logical RTL anchoring.' unless mobile_nav&
 fail 'mobile navigation must not use a physical right inset.' if mobile_nav.match?(/\bright:\s*/)
 fail 'mobile menu needs a bounded control size and shared shadow.' unless mobile_nav.match?(/inline-size:\s*36px;/) && mobile_nav.match?(/max-inline-size:/) && mobile_nav.match?(/box-shadow:\s*var\(--shadow-md\);/)
 expanded_nav = mobile[/\.site-nav:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
-fail 'expanded mobile menu needs a compact bounded inline size.' unless expanded_nav&.match?(/inline-size:\s*min\(240px,\s*calc\(100%\s*-\s*var\(--space-6\)\)\);/)
+fail 'expanded mobile trigger must remain compact.' unless expanded_nav&.match?(/inline-size:\s*36px;/)
 expanded_top = mobile[/\.header-top:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
 fail 'expanded mobile menu must reserve its compact panel height.' unless expanded_top&.match?(/padding-block-end:\s*240px;/)
 fail 'mobile navigation rows must keep a compact touch rhythm.' unless mobile.match?(/\.site-nav \.page-link\s*\{[^}]*min-block-size:\s*44px;/m) && mobile.match?(/\.mobile-social-links\s*\{[^}]*min-block-size:\s*44px;/m)
+fail 'expanded panel must begin below the trigger row at the logical edge.' unless mobile.match?(/\.nav-trigger:checked ~ \.trigger\s*\{[^}]*position:\s*absolute;[^}]*inset-block-start:\s*100%;[^}]*inset-inline-end:\s*0;[^}]*inline-size:\s*240px;/m)
 
 compiled_header = compiled.scan(/\.site-header\s*\{([^}]*)\}/m).flatten.last
 fail 'compiled header lost its stacking contract.' unless compiled_header&.match?(/isolation:\s*isolate/) && compiled_header.match?(/z-index:\s*1/)
