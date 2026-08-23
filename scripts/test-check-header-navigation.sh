@@ -28,7 +28,26 @@ expect_failure() {
   fi
 }
 
+expect_success() {
+  description=$1
+  if ! "$validator" "$fixture/work" "$fixture/work/_site"; then
+    printf 'expected validation success: %s\n' "$description" >&2
+    exit 1
+  fi
+}
+
 "$validator" "$root" "$root/_site"
+
+make_fixture
+ruby - "$fixture/work/_site/assets/css/style.css" <<'RUBY'
+path = ARGV.fetch(0)
+css = File.read(path)
+desktop, mobile = css.split('@media screen and (max-width: 600px)', 2)
+abort 'missing desktop CSS rule' unless desktop && desktop.sub!(/\.site-nav\s+\.nav-trigger\s*\{\s*display\s*:\s*none\s*;?\s*\}/, '.site-nav .nav-trigger { display: none }')
+abort 'missing mobile CSS rule' unless mobile && mobile.sub!(/(\.site-nav\s+\.nav-trigger\s*\{[^}]*?)display\s*:\s*block\s*;?/, '\\1display: block')
+File.write(path, desktop + '@media screen and (max-width: 600px)' + mobile)
+RUBY
+expect_success 'compiled CSS may be formatted with an omitted desktop final semicolon'
 
 make_fixture
 sed 's#https://il.linkedin.com/in/shakedklein#https://www.linkedin.com/in/guessed-profile#' "$fixture/work/_config.yml" > "$fixture/config.tmp"
@@ -51,6 +70,22 @@ mv "$fixture/page.tmp" "$fixture/work/_site/he/index.html"
 expect_failure 'generated Hebrew navigation destinations must remain exact'
 
 make_fixture
-sed 's/\.site-nav \.nav-trigger { display: block;/\.site-nav .nav-trigger { display: none;/' "$fixture/work/_site/assets/css/style.css" > "$fixture/css.tmp"
-mv "$fixture/css.tmp" "$fixture/work/_site/assets/css/style.css"
+ruby - "$fixture/work/_site/assets/css/style.css" <<'RUBY'
+path = ARGV.fetch(0)
+before = File.read(path)
+mobile_start = before.index('@media screen and (max-width: 600px)')
+abort 'missing mobile media query' unless mobile_start
+mobile = before[mobile_start..]
+matches = mobile.enum_for(:scan, /\.site-nav\s+\.nav-trigger\s*\{[^}]*display\s*:\s*block\s*;?[^}]*\}/m).to_a
+abort 'missing mobile display:block trigger rule' if matches.empty?
+rule = matches.last
+mutated_rule = rule.sub(/display\s*:\s*block\s*;?/, 'display: none')
+abort 'mobile trigger mutation did not change display:block' if mutated_rule == rule
+after = before.dup
+offset = mobile_start + mobile.rindex(rule)
+after[offset, rule.length] = mutated_rule
+abort 'compiled CSS mutation did not change the file' if after == before
+abort 'compiled mobile trigger was not changed to display:none' unless after[offset, mutated_rule.length].match?(/display\s*:\s*none/)
+File.write(path, after)
+RUBY
 expect_failure 'compiled mobile CSS must override Minima display:none'

@@ -71,7 +71,7 @@ fail 'mobile keyboard focus must visibly outline the menu label.' unless mobile_
 
 compiled_css = File.read(compiled_css_path)
 desktop_css, mobile_compiled = compiled_css.split('@media screen and (max-width: 600px)', 2)
-fail 'compiled CSS must keep the expanded desktop menu non-focusable.' unless desktop_css&.match?(%r{\.site-nav \.nav-trigger\s*\{\s*display:\s*none;\s*\}})
+fail 'compiled CSS must keep the expanded desktop menu non-focusable.' unless desktop_css&.match?(%r{\.site-nav \.nav-trigger\s*\{\s*display:\s*none\s*;?\s*\}})
 fail 'compiled mobile navigation CSS is missing.' unless mobile_compiled
 compiled_trigger = mobile_compiled.scan(/\.site-nav \.nav-trigger\s*\{([^}]*)\}/m).flatten.last
 fail 'compiled mobile nav trigger must override Minima display:none.' unless compiled_trigger&.match?(/display:\s*block/)
