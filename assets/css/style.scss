@@ -478,6 +478,23 @@ summary:focus-visible {
     text-align: end;
   }
 
+  /* Override Minima's `.site-nav .nav-trigger { display: none; }` so the
+     control remains reachable by keyboard users on the collapsed menu. */
+  .site-nav .nav-trigger {
+    display: block;
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    inset-inline-start: -9999px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .nav-toggle,
   .menu-icon {
     display: block;
@@ -490,6 +507,12 @@ summary:focus-visible {
     line-height: 0;
     padding-top: 10px;
     text-align: center;
+  }
+
+  .site-nav .nav-trigger:focus-visible + .nav-toggle {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
   }
 
   .menu-icon > svg {

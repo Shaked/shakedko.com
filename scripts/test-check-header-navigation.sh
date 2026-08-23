@@ -9,9 +9,11 @@ trap 'rm -rf "$fixture"' EXIT HUP INT TERM
 
 make_fixture() {
   rm -rf "$fixture/work"
-  mkdir -p "$fixture/work/_includes" "$fixture/work/_site/he"
+  mkdir -p "$fixture/work/_includes" "$fixture/work/assets/css" "$fixture/work/_site/he" "$fixture/work/_site/assets/css"
   cp "$root/_config.yml" "$fixture/work/_config.yml"
   cp "$root/_includes/header.html" "$fixture/work/_includes/header.html"
+  cp "$root/assets/css/style.scss" "$fixture/work/assets/css/style.scss"
+  cp "$root/_site/assets/css/style.css" "$fixture/work/_site/assets/css/style.css"
   cp "$root/_site/index.html" "$fixture/work/_site/index.html"
   cp "$root/_site/he/index.html" "$fixture/work/_site/he/index.html"
   cp -R "$root/_site/archive" "$fixture/work/_site/archive"
@@ -47,3 +49,8 @@ make_fixture
 sed 's#https://il.linkedin.com/in/shakedklein#https://il.linkedin.com/in/wrong#' "$fixture/work/_site/he/index.html" > "$fixture/page.tmp"
 mv "$fixture/page.tmp" "$fixture/work/_site/he/index.html"
 expect_failure 'generated Hebrew navigation destinations must remain exact'
+
+make_fixture
+sed 's/\.site-nav \.nav-trigger { display: block;/\.site-nav .nav-trigger { display: none;/' "$fixture/work/_site/assets/css/style.css" > "$fixture/css.tmp"
+mv "$fixture/css.tmp" "$fixture/work/_site/assets/css/style.css"
+expect_failure 'compiled mobile CSS must override Minima display:none'
