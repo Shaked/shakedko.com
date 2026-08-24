@@ -33,6 +33,8 @@ done
 
 grep -Fq 'aria-label="X profile (opens in a new tab)"' "$header" || fail "X icon needs an accessible label."
 grep -Fq 'aria-label="LinkedIn profile (opens in a new tab)"' "$header" || fail "LinkedIn icon needs an accessible label."
+grep -Fq 'aria-label="פרופיל X (נפתח בכרטיסייה חדשה)"' "$header" || fail "Hebrew X icon needs an accessible label."
+grep -Fq 'aria-label="פרופיל LinkedIn (נפתח בכרטיסייה חדשה)"' "$header" || fail "Hebrew LinkedIn icon needs an accessible label."
 external_links=$(grep -c 'target="_blank" rel="noopener noreferrer"' "$header" || true)
 [ "$external_links" -eq 4 ] || fail "social links must have safe external-link attributes."
 
@@ -48,6 +50,14 @@ site_dir, header_path, source_css_path, compiled_css_path = ARGV
 expected = {
   'index.html' => ['/', 'https://x.com/shakedko', 'https://il.linkedin.com/in/shakedklein', '/he/', '/archive/'],
   'he/index.html' => ['/he/', 'https://x.com/shakedko', 'https://il.linkedin.com/in/shakedklein', '/', '/he/archive/']
+}
+expected_labels = {
+  'index.html' => ['Home', '', '', 'עברית', 'Archive'],
+  'he/index.html' => ['עמוד הבית', '', '', 'אנגלית', 'ארכיון']
+}
+expected_navigation_names = {
+  'index.html' => 'Primary navigation',
+  'he/index.html' => 'תפריט ניווט'
 }
 
 def fail(message)
@@ -97,14 +107,21 @@ expected.each do |page, destinations|
   html = File.read(File.join(site_dir, page))
   nav = html[/<nav\b[^>]*\bclass="site-nav"[^>]*>.*?<\/nav>/m]
   fail "#{page}: navigation is missing" unless nav
+  fail "#{page}: navigation accessibility name changed" unless nav.include?(%(aria-label="#{expected_navigation_names.fetch(page)}"))
   links = nav.scan(/<a\b([^>]*)>(.*?)<\/a>/m)
   actual = links.map { |attributes, _| attributes[/\bhref="([^"]*)"/, 1] }
   fail "#{page}: expected navigation destinations #{destinations.inspect}, got #{actual.inspect}" unless actual == destinations
+  visible_labels = links.map { |_, content| content.gsub(/<[^>]*>/, '').strip }
+  fail "#{page}: navigation labels changed" unless visible_labels == expected_labels.fetch(page)
   fail "#{page}: About must not be generated or linked" if html.match?(%r{(?:href=["'])/about/?(?:["'#])|/about/index\.html})
 
   links.each_with_index do |(attributes, _), index|
     next unless index == 1 || index == 2
-    expected_label = index == 1 ? 'X profile (opens in a new tab)' : 'LinkedIn profile (opens in a new tab)'
+    expected_label = if page == 'he/index.html'
+      index == 1 ? 'פרופיל X (נפתח בכרטיסייה חדשה)' : 'פרופיל LinkedIn (נפתח בכרטיסייה חדשה)'
+    else
+      index == 1 ? 'X profile (opens in a new tab)' : 'LinkedIn profile (opens in a new tab)'
+    end
     fail "#{page}: #{expected_label} is not accessible" unless attributes.include?(%(aria-label="#{expected_label}"))
     fail "#{page}: #{expected_label} must open safely" unless attributes.include?('target="_blank"') && attributes.include?('rel="noopener noreferrer"')
   end

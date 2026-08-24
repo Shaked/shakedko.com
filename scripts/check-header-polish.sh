@@ -28,7 +28,7 @@ source = File.read(source_path)
 compiled = File.read(compiled_path)
 header = File.read(header_path)
 
-fail 'header navigation needs an accessible landmark name.' unless header.include?('<nav class="site-nav" aria-label="Primary navigation">')
+fail 'header navigation needs language-aware accessible landmark names.' unless header.include?('aria-label="{% if page.lang == "he" %}תפריט ניווט{% else %}Primary navigation{% endif %}"')
 fail 'quote needs the semantic polish wrapper.' unless header.match?(%r{<div class="header-quote">\s*<blockquote class="site-quote">.*?</blockquote>\s*<cite class="quote-author">}m)
 
 header_block = source[/\.site-header\s*\{([^}]*)\}/m, 1]
@@ -53,14 +53,17 @@ fail 'mobile header polish is missing.' unless mobile
 mobile_nav = mobile[/\.site-nav\s*\{([^}]*)\}/m, 1]
 fail 'mobile navigation must preserve logical RTL anchoring.' unless mobile_nav&.match?(/inset-inline-end:\s*15px;/) && mobile_nav.match?(/inset-inline-start:\s*auto;/)
 fail 'mobile navigation must not use a physical right inset.' if mobile_nav.match?(/\bright:\s*/)
-fail 'mobile menu needs a bounded control size and shared shadow.' unless mobile_nav.match?(/inline-size:\s*36px;/) && mobile_nav.match?(/max-inline-size:/) && mobile_nav.match?(/box-shadow:\s*var\(--shadow-md\);/)
+fail 'collapsed mobile menu must be an unboxed 44px control.' unless mobile_nav.match?(/inline-size:\s*44px;/) && mobile_nav.match?(/background-color:\s*transparent;/) && mobile_nav.match?(/border:\s*0;/) && mobile_nav.match?(/box-shadow:\s*none;/)
 expanded_nav = mobile[/\.site-nav:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
-fail 'expanded mobile trigger must remain compact.' unless expanded_nav&.match?(/inline-size:\s*36px;/)
+fail 'expanded mobile trigger must remain compact.' unless expanded_nav&.match?(/inline-size:\s*44px;/)
 expanded_top = mobile[/\.header-top:has\(\.nav-trigger:checked\)\s*\{([^}]*)\}/m, 1]
 fail 'expanded mobile menu must not push document content down.' if expanded_top&.match?(/padding-block-end:\s*(?!0(?:px)?;?)/)
 fail 'mobile navigation rows must keep a compact touch rhythm.' unless mobile.match?(/\.site-nav \.page-link\s*\{[^}]*min-block-size:\s*44px;/m) && mobile.match?(/\.mobile-social-links\s*\{[^}]*min-block-size:\s*44px;/m)
 fail 'expanded panel must begin below the trigger row at the logical edge.' unless mobile.match?(/\.nav-trigger:checked ~ \.trigger\s*\{[^}]*position:\s*absolute;[^}]*inset-block-start:\s*100%;[^}]*inset-inline-end:\s*0;[^}]*inline-size:\s*240px;/m)
 fail 'mobile overlay must keep a strong stacking level.' unless mobile_nav&.match?(/z-index:\s*3;/)
+fail 'expanded panel must retain the shared popover surface.' unless mobile.match?(/\.nav-trigger:checked ~ \.trigger\s*\{[^}]*background-color:\s*var\(--color-surface\);[^}]*border:\s*1px solid var\(--color-border\);[^}]*box-shadow:\s*var\(--shadow-md\);/m)
+toggle = mobile[/\.nav-toggle\s*\{([^}]*)\}/m, 1]
+fail 'mobile toggle must keep a 44px touch target.' unless toggle&.match?(/width:\s*44px;/) && toggle.match?(/height:\s*44px;/)
 
 compiled_header = compiled.scan(/\.site-header\s*\{([^}]*)\}/m).flatten.last
 fail 'compiled header lost its stacking contract.' unless compiled_header&.match?(/isolation:\s*isolate/) && compiled_header.match?(/z-index:\s*1/)
