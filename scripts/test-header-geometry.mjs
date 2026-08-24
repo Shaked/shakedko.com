@@ -59,6 +59,9 @@ const probe = `(() => {
   const title = rect('.site-title');
   const quote = rect('.header-quote');
   const trigger = rect('.trigger');
+  const toggle = rect('.nav-toggle');
+  const menuOpen = rect('.menu-open');
+  const menuClose = rect('.menu-close');
   const triggerStyle = getComputedStyle(document.querySelector('.trigger'));
   return JSON.stringify({
     width: innerWidth,
@@ -70,12 +73,14 @@ const probe = `(() => {
     overflowing: [...document.querySelectorAll('*')].map((element) => ({ name: element.className || element.tagName, right: element.getBoundingClientRect().right })).filter((item) => item.right > innerWidth),
     headerZ: getComputedStyle(document.querySelector('.site-header')).zIndex,
     navZ: getComputedStyle(document.querySelector('.site-nav')).zIndex,
+    menuOpenDisplay: getComputedStyle(document.querySelector('.menu-open')).display,
+    menuCloseDisplay: getComputedStyle(document.querySelector('.menu-close')).display,
     panelBackground: triggerStyle.backgroundColor,
     panelBorder: triggerStyle.borderTopWidth,
     panelShadow: triggerStyle.boxShadow,
     rowHeights: [...document.querySelectorAll('.trigger > .page-link')].map((link) => link.getBoundingClientRect().height),
     socialRowHeight: document.querySelector('.mobile-social-links').getBoundingClientRect().height,
-    header, nav, title, quote, trigger, panel: trigger,
+    header, nav, title, quote, trigger, toggle, menuOpen, menuClose, panel: trigger,
     titleOverlap: intersects(trigger, title),
     quoteOverlap: intersects(trigger, quote),
   });
@@ -103,6 +108,10 @@ function assertGeometry(measurement, width, language, expanded) {
   if (measurement.nav.left < 0 || measurement.nav.right > width) fail(`${state}: navigation exceeds viewport`);
   if (measurement.titleOverlap) fail(`${state}: panel intersects title row`);
   if (measurement.headerZ !== '1' || measurement.navZ !== '3') fail(`${state}: stacking contract changed`);
+  if (measurement.toggle.width !== 44 || measurement.toggle.height !== 44 || measurement.nav.width !== 44 || measurement.nav.height !== 44) fail(`${state}: menu control is not 44px square`);
+  if (expanded) {
+    if (measurement.menuOpenDisplay !== 'none' || measurement.menuOpen.width !== 0 || measurement.menuOpen.height !== 0 || measurement.menuCloseDisplay === 'none') fail(`${state}: close icon state is wrong`);
+  } else if (measurement.menuOpenDisplay === 'none' || measurement.menuCloseDisplay !== 'none' || measurement.menuClose.width !== 0 || measurement.menuClose.height !== 0) fail(`${state}: hamburger icon state is wrong`);
   if (expanded) {
     if (measurement.trigger.top < measurement.title.bottom) fail(`${state}: expanded links are not below the title row`);
     if (measurement.panel.width > 242 || measurement.panel.height > 235) fail(`${state}: panel is not compact`);
@@ -145,6 +154,17 @@ try {
     lowZRejected = true;
   }
   if (!lowZRejected) fail('low-z mutation was not rejected');
+  const specificityCss = `${css}\n@media screen and (max-width: 600px) { .site-nav label[for="nav-trigger"] { width: 36px !important; height: 36px !important; } .site-nav .menu-icon { display: block !important; } }`;
+  if (specificityCss === css) fail('specificity mutation did not change the compiled CSS');
+  const specificityBroken = await measure(browser, headerDocument('index.html', 'ltr', specificityCss), 393, false);
+  if (specificityBroken.toggle.width !== 36 || specificityBroken.menuCloseDisplay === 'none') fail('specificity mutation did not recreate the boxed control regression');
+  let specificityRejected = false;
+  try {
+    assertGeometry(specificityBroken, 393, 'ltr', false);
+  } catch {
+    specificityRejected = true;
+  }
+  if (!specificityRejected) fail('specificity mutation was not rejected');
   process.stdout.write('header geometry checks passed\n');
 } finally {
   browser.child.kill();

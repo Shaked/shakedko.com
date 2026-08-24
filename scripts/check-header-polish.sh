@@ -62,7 +62,7 @@ fail 'mobile navigation rows must keep a compact touch rhythm.' unless mobile.ma
 fail 'expanded panel must begin below the trigger row at the logical edge.' unless mobile.match?(/\.nav-trigger:checked ~ \.trigger\s*\{[^}]*position:\s*absolute;[^}]*inset-block-start:\s*100%;[^}]*inset-inline-end:\s*0;[^}]*inline-size:\s*240px;/m)
 fail 'mobile overlay must keep a strong stacking level.' unless mobile_nav&.match?(/z-index:\s*3;/)
 fail 'expanded panel must retain the shared popover surface.' unless mobile.match?(/\.nav-trigger:checked ~ \.trigger\s*\{[^}]*background-color:\s*var\(--color-surface\);[^}]*border:\s*1px solid var\(--color-border\);[^}]*box-shadow:\s*var\(--shadow-md\);/m)
-toggle = mobile[/\.nav-toggle\s*\{([^}]*)\}/m, 1]
+toggle = mobile[/\.site-nav label\.nav-toggle\[for="nav-trigger"\]\s*\{([^}]*)\}/m, 1]
 fail 'mobile toggle must keep a 44px touch target.' unless toggle&.match?(/width:\s*44px;/) && toggle.match?(/height:\s*44px;/)
 
 compiled_header = compiled.scan(/\.site-header\s*\{([^}]*)\}/m).flatten.last

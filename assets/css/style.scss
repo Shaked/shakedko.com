@@ -518,6 +518,7 @@ summary:focus-visible {
     border-radius: var(--radius-md);
     box-shadow: none;
     inline-size: 44px;
+    block-size: 44px;
     text-align: end;
     max-inline-size: calc(100% - var(--space-6));
   }
@@ -543,12 +544,12 @@ summary:focus-visible {
     white-space: nowrap;
   }
 
-  .nav-toggle,
-  .menu-icon {
+  .site-nav label.nav-toggle[for="nav-trigger"],
+  .site-nav .nav-toggle .menu-icon {
     display: block;
   }
 
-  .nav-toggle {
+  .site-nav label.nav-toggle[for="nav-trigger"] {
     float: inline-end;
     display: grid;
     place-items: center;
@@ -561,8 +562,8 @@ summary:focus-visible {
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .nav-toggle:hover { background-color: var(--color-purple-soft); }
-  .nav-toggle:active { background-color: var(--color-surface-subtle); }
+  .site-nav label.nav-toggle[for="nav-trigger"]:hover { background-color: var(--color-purple-soft); }
+  .site-nav label.nav-toggle[for="nav-trigger"]:active { background-color: var(--color-surface-subtle); }
 
   .site-nav .nav-trigger:focus-visible + .nav-toggle {
     outline: 3px solid var(--color-focus);
@@ -574,7 +575,7 @@ summary:focus-visible {
     fill: var(--color-purple);
   }
 
-  .menu-close { display: none; }
+  .site-nav .nav-toggle .menu-close { display: none; }
   .site-nav .nav-trigger:checked + .nav-toggle .menu-open { display: none; }
   .site-nav .nav-trigger:checked + .nav-toggle .menu-close { display: block; }
 
