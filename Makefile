@@ -1,4 +1,4 @@
-.PHONY: help serve build clean open stop logs shell down check-content check-feeds
+.PHONY: help serve build clean open stop logs shell down check-content check-feeds check-review review review-stop review-status
 
 # Default target
 help:
@@ -13,6 +13,8 @@ help:
 	@echo "  make shell      - Open a shell in the container"
 	@echo "  make check-content - Validate X-post language routing"
 	@echo "  make check-feeds - Validate language-specific Atom feeds"
+	@echo "  make check-review - Validate public review-workflow boundaries"
+	@echo "  make review     - Build and start the installed private review helper"
 
 # Start the Jekyll server with Docker Compose
 serve:
@@ -41,6 +43,22 @@ check-content:
 check-feeds:
 	scripts/check-language-feeds.sh
 	scripts/test-check-language-feeds.sh
+
+check-review:
+	scripts/check-review-workflow.sh
+	scripts/test-check-review-workflow.sh
+
+review:
+	@command -v yanki-shakedko-review >/dev/null || { echo "Private review tooling is not installed." >&2; exit 2; }
+	@yanki-shakedko-review start "$(CURDIR)"
+
+review-stop:
+	@command -v yanki-shakedko-review >/dev/null || { echo "Private review tooling is not installed." >&2; exit 2; }
+	@yanki-shakedko-review stop "$(CURDIR)"
+
+review-status:
+	@command -v yanki-shakedko-review >/dev/null || { echo "Private review tooling is not installed." >&2; exit 2; }
+	@yanki-shakedko-review status "$(CURDIR)"
 
 # Clean generated files
 clean:

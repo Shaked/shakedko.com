@@ -16,6 +16,15 @@ plugins:
   - jekyll-seo-tag
   - jekyll-redirect-from
 
+# Local runtime support is not part of the published site.
+exclude:
+  - AGENTS.md
+  - CLAUDE.md
+  - .agents
+  - .ollama
+  - Makefile
+  - scripts
+
 # Pagination
 paginate: 5
 paginate_path: "/page:num/"
