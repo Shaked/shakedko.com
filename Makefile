@@ -1,4 +1,4 @@
-.PHONY: help serve build clean open stop logs shell down
+.PHONY: help serve build clean open stop logs shell down check-content
 
 # Default target
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  make down       - Stop and remove containers"
 	@echo "  make logs       - Show container logs"
 	@echo "  make shell      - Open a shell in the container"
+	@echo "  make check-content - Validate X-post language routing"
 
 # Start the Jekyll server with Docker Compose
 serve:
@@ -29,6 +30,12 @@ serve-bg:
 # Build the site using Docker
 build:
 	docker-compose run --rm jekyll jekyll build
+
+# Validate X-post collection and language metadata.
+check-content:
+	scripts/check-x-post-language.sh
+	scripts/test-check-x-post-language.sh
+	scripts/test-check-x-embed-cards.sh
 
 # Clean generated files
 clean:
@@ -54,4 +61,3 @@ logs:
 # Open shell in container
 shell:
 	docker-compose run --rm jekyll /bin/sh
-

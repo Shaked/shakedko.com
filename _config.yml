@@ -42,6 +42,7 @@ defaults:
     values:
       layout: "post"
       author: "Shaked Klein Orbach"
+      lang: "en"
   - scope:
       path: ""
       type: "posts_he"
