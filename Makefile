@@ -1,4 +1,4 @@
-.PHONY: help serve build clean open stop logs shell down check-content
+.PHONY: help serve build clean open stop logs shell down check-content check-feeds
 
 # Default target
 help:
@@ -12,6 +12,7 @@ help:
 	@echo "  make logs       - Show container logs"
 	@echo "  make shell      - Open a shell in the container"
 	@echo "  make check-content - Validate X-post language routing"
+	@echo "  make check-feeds - Validate language-specific Atom feeds"
 
 # Start the Jekyll server with Docker Compose
 serve:
@@ -36,6 +37,10 @@ check-content:
 	scripts/check-x-post-language.sh
 	scripts/test-check-x-post-language.sh
 	scripts/test-check-x-embed-cards.sh
+
+check-feeds:
+	scripts/check-language-feeds.sh
+	scripts/test-check-language-feeds.sh
 
 # Clean generated files
 clean:
