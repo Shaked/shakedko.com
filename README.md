@@ -17,7 +17,6 @@ This repository contains a complete GitHub Pages structure using Jekyll:
 - **assets/css/** - Stylesheets
   - style.scss - Custom CSS styles
 - **index.html** - Homepage that lists blog posts
-- **about.md** - About page
 - **Gemfile** - Ruby dependencies for local development
 
 ## Getting Started

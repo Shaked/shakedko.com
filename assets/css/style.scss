@@ -137,8 +137,20 @@ summary:focus-visible {
 .site-nav .page-link {
   color: var(--color-text);
   line-height: 1.5;
-  margin-left: 20px;
+  margin-inline-start: 20px;
   text-decoration: none;
+}
+
+.site-nav .social-link {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.site-nav .social-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 .site-nav .page-link:visited {
@@ -442,33 +454,71 @@ summary:focus-visible {
 
 /* Navigation trigger for mobile */
 .nav-trigger {
-  display: none;
+  position: absolute;
+  opacity: 0;
 }
 
 .menu-icon {
   display: none;
 }
 
+.nav-toggle {
+  display: none;
+}
+
 @media screen and (max-width: 600px) {
+  .header-top {
+    min-block-size: 36px;
+    padding-inline-end: 52px;
+  }
+
   .site-nav {
     position: absolute;
     z-index: 1;
     top: 9px;
-    right: 15px;
+    inset-inline-end: 15px;
+    inset-inline-start: auto;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 5px;
-    text-align: right;
+    text-align: end;
   }
 
+  /* Override Minima's `.site-nav .nav-trigger { display: none; }` so the
+     control remains reachable by keyboard users on the collapsed menu. */
+  .site-nav .nav-trigger {
+    display: block;
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    inset-inline-start: -9999px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nav-toggle,
   .menu-icon {
     display: block;
-    float: right;
+  }
+
+  .nav-toggle {
+    float: inline-end;
     width: 36px;
     height: 26px;
     line-height: 0;
     padding-top: 10px;
     text-align: center;
+  }
+
+  .site-nav .nav-trigger:focus-visible + .nav-toggle {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
   }
 
   .menu-icon > svg {
@@ -488,11 +538,16 @@ summary:focus-visible {
   .site-nav .page-link {
     display: block;
     padding: 5px 10px;
-    margin-left: 20px;
+    margin-inline: 20px 0;
   }
 
   .site-nav .page-link:not(:last-child) {
-    margin-right: 0;
+    margin-inline-end: 0;
+  }
+
+  .site-nav .social-link {
+    display: flex;
+    width: max-content;
   }
 }
 
