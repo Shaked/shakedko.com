@@ -9,4 +9,4 @@ nav_block=$(sed -n '/^  \.site-nav {/,/^  }/p' "$css_file")
 printf '%s\n' "$header_block" | grep -q 'position: relative;'
 printf '%s\n' "$header_block" | grep -q 'z-index: 1;'
 printf '%s\n' "$nav_block" | grep -q 'position: absolute;'
-printf '%s\n' "$nav_block" | grep -q 'z-index: 1;'
+printf '%s\n' "$nav_block" | grep -q 'z-index: 3;'

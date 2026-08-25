@@ -70,20 +70,25 @@ summary:focus-visible {
 
 .site-header {
   position: relative;
+  isolation: isolate;
   z-index: 1;
-  border-top: 3px solid var(--color-purple);
-  border-bottom: 1px solid var(--color-border);
+  border-block-start: 3px solid var(--color-purple);
+  border-block-end: 1px solid var(--color-border);
   min-height: 56px;
-  padding: var(--space-2) 0 var(--space-4) 0;
+  padding-block: var(--space-2) var(--space-4);
   background-color: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
 
 .header-top {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-2);
+  gap: var(--space-4);
+  margin-block-end: var(--space-3);
+  padding-block-end: var(--space-2);
+  border-block-end: 1px solid var(--color-border);
 }
 
 .site-title {
@@ -91,7 +96,9 @@ summary:focus-visible {
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -1px;
-  margin-bottom: 0;
+  margin-block-end: 0;
+  padding-block: var(--space-1);
+  border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--color-text);
 }
@@ -111,6 +118,12 @@ summary:focus-visible {
   color: var(--color-purple-active);
 }
 
+.header-quote {
+  max-inline-size: 600px;
+  padding-inline-start: var(--space-3);
+  border-inline-start: 3px solid var(--color-border-strong);
+}
+
 .site-quote {
   display: block;
   font-size: 13px;
@@ -120,25 +133,36 @@ summary:focus-visible {
   padding: 0;
   border: none;
   line-height: 1.4;
-  max-width: 600px;
 }
 
 .quote-author {
   display: block;
   font-size: 11px;
   color: var(--color-text-subtle);
-  margin-top: 2px;
+  margin-block-start: 2px;
+  font-style: normal;
 }
 
 .site-nav {
   line-height: 1.2;
 }
 
+.site-nav .trigger {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
 .site-nav .page-link {
   color: var(--color-text);
   line-height: 1.5;
-  margin-inline-start: 20px;
+  margin-inline-start: 0;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
   text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .site-nav .social-link {
@@ -153,18 +177,28 @@ summary:focus-visible {
   fill: currentColor;
 }
 
+.mobile-social-links {
+  display: contents;
+}
+
 .site-nav .page-link:visited {
   color: var(--color-text);
 }
 
 .site-nav .page-link:hover,
 .site-nav .page-link:visited:hover {
+  background-color: var(--color-purple-soft);
   color: var(--color-purple-hover);
 }
 
 .site-nav .page-link:active,
 .site-nav .page-link:visited:active {
+  background-color: var(--color-surface-subtle);
   color: var(--color-purple-active);
+}
+
+.site-nav .page-link:focus-visible {
+  background-color: var(--color-purple-soft);
 }
 
 .page-content {
@@ -470,18 +504,27 @@ summary:focus-visible {
   .header-top {
     min-block-size: 36px;
     padding-inline-end: 52px;
+    gap: var(--space-2);
   }
 
   .site-nav {
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     top: 9px;
     inset-inline-end: 15px;
     inset-inline-start: auto;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 5px;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    inline-size: 44px;
+    block-size: 44px;
     text-align: end;
+    max-inline-size: calc(100% - var(--space-6));
+  }
+
+  .site-nav:has(.nav-trigger:checked) {
+    inline-size: 44px;
   }
 
   /* Override Minima's `.site-nav .nav-trigger { display: none; }` so the
@@ -501,19 +544,26 @@ summary:focus-visible {
     white-space: nowrap;
   }
 
-  .nav-toggle,
-  .menu-icon {
+  .site-nav label.nav-toggle[for="nav-trigger"],
+  .site-nav .nav-toggle .menu-icon {
     display: block;
   }
 
-  .nav-toggle {
+  .site-nav label.nav-toggle[for="nav-trigger"] {
     float: inline-end;
-    width: 36px;
-    height: 26px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
     line-height: 0;
-    padding-top: 10px;
+    padding: 0;
     text-align: center;
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
+
+  .site-nav label.nav-toggle[for="nav-trigger"]:hover { background-color: var(--color-purple-soft); }
+  .site-nav label.nav-toggle[for="nav-trigger"]:active { background-color: var(--color-surface-subtle); }
 
   .site-nav .nav-trigger:focus-visible + .nav-toggle {
     outline: 3px solid var(--color-focus);
@@ -525,20 +575,38 @@ summary:focus-visible {
     fill: var(--color-purple);
   }
 
+  .site-nav .nav-toggle .menu-close { display: none; }
+  .site-nav .nav-trigger:checked + .nav-toggle .menu-open { display: none; }
+  .site-nav .nav-trigger:checked + .nav-toggle .menu-close { display: block; }
+
   .trigger {
     clear: both;
     display: none;
+    max-inline-size: 100%;
   }
 
   .nav-trigger:checked ~ .trigger {
     display: block;
-    padding-bottom: 5px;
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    inline-size: 240px;
+    max-inline-size: none;
+    padding-block-end: var(--space-1);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
   }
 
   .site-nav .page-link {
-    display: block;
-    padding: 5px 10px;
-    margin-inline: 20px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: 44px;
+    padding: var(--space-2);
+    margin-inline: 0;
   }
 
   .site-nav .page-link:not(:last-child) {
@@ -546,8 +614,16 @@ summary:focus-visible {
   }
 
   .site-nav .social-link {
+    justify-content: center;
+    inline-size: 44px;
+  }
+
+  .mobile-social-links {
     display: flex;
-    width: max-content;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: 44px;
+    padding-inline: var(--space-2);
   }
 }
 
