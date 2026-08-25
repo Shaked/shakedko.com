@@ -9,10 +9,14 @@
       {% if include.show_pinned_badge and post.pinned %}
         <div class="post-badge">📌 {{ include.pinned_label }}</div>
       {% endif %}
-      {% if post_type %}
+      {% if post.post_type %}
         <div class="post-type">
-          <img src="{{ '/assets/icons/post-types/' | append: post_type.icon | relative_url }}" alt="" aria-hidden="true" width="18" height="18">
-          <span>{{ post_type.label | escape }}</span>
+          {% if post_type %}
+            <img src="{{ '/assets/icons/post-types/' | append: post_type.icon | relative_url }}" alt="" aria-hidden="true" width="18" height="18">
+            <span>{{ post_type.label[post.lang] | escape }}</span>
+          {% else %}
+            <span>{{ post.post_type | replace: '_', ' ' | replace: '-', ' ' | capitalize | escape }}</span>
+          {% endif %}
         </div>
       {% endif %}
       <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>

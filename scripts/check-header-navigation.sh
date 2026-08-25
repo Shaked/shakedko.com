@@ -35,6 +35,8 @@ grep -Fq 'aria-label="X profile (opens in a new tab)"' "$header" || fail "X icon
 grep -Fq 'aria-label="LinkedIn profile (opens in a new tab)"' "$header" || fail "LinkedIn icon needs an accessible label."
 grep -Fq 'aria-label="פרופיל X (נפתח בכרטיסייה חדשה)"' "$header" || fail "Hebrew X icon needs an accessible label."
 grep -Fq 'aria-label="פרופיל LinkedIn (נפתח בכרטיסייה חדשה)"' "$header" || fail "Hebrew LinkedIn icon needs an accessible label."
+grep -Fq 'href="{{ "/" | relative_url }}" aria-label="מעבר לאנגלית">English</a>' "$header" || fail "Hebrew language switch must visibly read English, link to /, and name the destination in Hebrew."
+grep -Fq 'href="{{ "/he/" | relative_url }}">עברית</a>' "$header" || fail "English language switch must visibly read עברית and link to /he/."
 external_links=$(grep -c 'target="_blank" rel="noopener noreferrer"' "$header" || true)
 [ "$external_links" -eq 4 ] || fail "social links must have safe external-link attributes."
 
@@ -53,11 +55,15 @@ expected = {
 }
 expected_labels = {
   'index.html' => ['Home', '', '', 'עברית', 'Archive'],
-  'he/index.html' => ['עמוד הבית', '', '', 'אנגלית', 'ארכיון']
+  'he/index.html' => ['עמוד הבית', '', '', 'English', 'ארכיון']
 }
 expected_navigation_names = {
   'index.html' => 'Primary navigation',
   'he/index.html' => 'תפריט ניווט'
+}
+expected_language_switches = {
+  'index.html' => { label: 'עברית', href: '/he/', aria_label: nil },
+  'he/index.html' => { label: 'English', href: '/', aria_label: 'מעבר לאנגלית' }
 }
 
 def fail(message)
@@ -113,6 +119,17 @@ expected.each do |page, destinations|
   fail "#{page}: expected navigation destinations #{destinations.inspect}, got #{actual.inspect}" unless actual == destinations
   visible_labels = links.map { |_, content| content.gsub(/<[^>]*>/, '').strip }
   fail "#{page}: navigation labels changed" unless visible_labels == expected_labels.fetch(page)
+  language_switch = expected_language_switches.fetch(page)
+  switch_attributes, switch_content = links[3]
+  switch_label = switch_content.gsub(/<[^>]*>/, '').strip
+  switch_href = switch_attributes[/\bhref="([^"]*)"/, 1]
+  fail "#{page}: language switch label changed" unless switch_label == language_switch.fetch(:label)
+  fail "#{page}: language switch destination changed" unless switch_href == language_switch.fetch(:href)
+  if language_switch[:aria_label]
+    fail "#{page}: Hebrew language switch accessible name changed" unless switch_attributes.include?(%(aria-label="#{language_switch.fetch(:aria_label)}"))
+  else
+    fail "#{page}: English language switch must not add an unexpected accessible name" if switch_attributes.match?(/\baria-label=/)
+  end
   fail "#{page}: About must not be generated or linked" if html.match?(%r{(?:href=["'])/about/?(?:["'#])|/about/index\.html})
 
   links.each_with_index do |(attributes, _), index|
