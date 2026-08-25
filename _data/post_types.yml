@@ -1,24 +1,40 @@
 featured:
-  label: Featured
+  label:
+    en: Featured
+    he: מומלץ
   icon: featured.svg
 ai:
-  label: AI
+  label:
+    en: AI
+    he: בינה מלאכותית
   icon: ai.svg
 security:
-  label: Security
+  label:
+    en: Security
+    he: אבטחה
   icon: security.svg
 infrastructure:
-  label: Infrastructure
+  label:
+    en: Infrastructure
+    he: תשתיות
   icon: infrastructure.svg
 development:
-  label: Development
+  label:
+    en: Development
+    he: פיתוח
   icon: development.svg
 craft:
-  label: Craft
+  label:
+    en: Craft
+    he: יצירה
   icon: craft.svg
 building:
-  label: Building
+  label:
+    en: Building
+    he: בנייה
   icon: building.svg
 thoughts:
-  label: Thoughts
+  label:
+    en: Thoughts
+    he: מחשבות
   icon: thoughts.svg

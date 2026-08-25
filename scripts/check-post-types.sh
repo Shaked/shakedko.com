@@ -23,41 +23,49 @@ fail() {
 entries=$(mktemp "${TMPDIR:-/tmp}/post-types-entries.XXXXXX")
 trap 'rm -f "$entries"' EXIT HUP INT TERM
 
-awk '
-  function finish() {
-    if (key == "") return
-    if (label == "" || icon == "") {
-      printf "%s is missing a label or icon.\n", key > "/dev/stderr"
-      failed = 1
-    } else {
-      print key "\t" label "\t" icon
-    }
-  }
-  /^[a-z][a-z0-9_-]*:$/ {
-    finish()
-    key = substr($0, 1, length($0) - 1)
-    label = ""
-    icon = ""
-    next
-  }
-  key != "" && /^  label: [^[:space:]]/ {
-    label = $0
-    sub(/^  label: /, "", label)
-    next
-  }
-  key != "" && /^  icon: [a-z0-9_-]+\.svg$/ {
-    icon = $0
-    sub(/^  icon: /, "", icon)
-  }
-  END { finish(); exit(failed ? 1 : 0) }
-' "$mapping" > "$entries" || fail 'post type mapping entries must have a label and a local SVG icon.'
+ruby -ryaml - "$mapping" > "$entries" <<'RUBY' || fail 'post type mappings must each have English and Hebrew labels plus a local SVG icon.'
+mapping = YAML.load_file(ARGV.fetch(0))
+abort 'post type mapping must be a YAML object.' unless mapping.is_a?(Hash)
+expected_labels = {
+  'featured' => { 'en' => 'Featured', 'he' => 'מומלץ' },
+  'ai' => { 'en' => 'AI', 'he' => 'בינה מלאכותית' },
+  'security' => { 'en' => 'Security', 'he' => 'אבטחה' },
+  'infrastructure' => { 'en' => 'Infrastructure', 'he' => 'תשתיות' },
+  'development' => { 'en' => 'Development', 'he' => 'פיתוח' },
+  'craft' => { 'en' => 'Craft', 'he' => 'יצירה' },
+  'building' => { 'en' => 'Building', 'he' => 'בנייה' },
+  'thoughts' => { 'en' => 'Thoughts', 'he' => 'מחשבות' }
+}
+
+mapping.each do |key, value|
+  abort "invalid post type key: #{key.inspect}" unless key.is_a?(String) && key.match?(/\A[a-z][a-z0-9_-]*\z/)
+  abort "#{key} must be a mapping." unless value.is_a?(Hash)
+  labels = value['label']
+  abort "#{key} must have bilingual labels." unless labels.is_a?(Hash)
+  %w[en he].each do |language|
+    label = labels[language]
+    abort "#{key} is missing a #{language} label." unless label.is_a?(String) && !label.strip.empty?
+  end
+  icon = value['icon']
+  abort "#{key} is missing a local SVG icon." unless icon.is_a?(String) && icon.match?(/\A[a-z0-9_-]+\.svg\z/)
+  puts [key, labels['en'], labels['he'], icon].join("\t")
+end
+
+expected_labels.each do |key, labels|
+  actual = mapping[key]
+  abort "missing required post type: #{key}" unless actual.is_a?(Hash)
+  labels.each do |language, expected_label|
+    abort "#{key} #{language} label must equal #{expected_label.inspect}." unless actual.dig('label', language) == expected_label
+  end
+end
+RUBY
 
 for key in $required_keys; do
   awk -F '\t' -v key="$key" '$1 == key { found = 1 } END { exit(found ? 0 : 1) }' "$entries" || fail "missing required post type: $key"
 done
 
-while IFS="$(printf '\t')" read -r key label icon; do
-  [ -n "$key" ] && [ -n "$label" ] && [ -n "$icon" ] || fail 'post type mapping contains an invalid entry.'
+while IFS="$(printf '\t')" read -r key english hebrew icon; do
+  [ -n "$key" ] && [ -n "$english" ] && [ -n "$hebrew" ] && [ -n "$icon" ] || fail 'post type mapping contains an invalid entry.'
   [ -f "$icons/$icon" ] || fail "$key references a missing icon: $icon"
 done < "$entries"
 
@@ -71,21 +79,32 @@ for icon in "$icons"/*.svg; do
   fi
 done
 
-marker_contract() {
-  template=$1
-  marker=$2
-  grep -q "site.data.post_types\[$marker.post_type\]" "$template" || fail "$template does not use the central mapping."
-  grep -q '{% if post_type %}' "$template" || fail "$template must hide missing or unknown post types."
-  awk '
-    /<div class="post-type">/ { in_marker = 1 }
-    in_marker { block = block $0 "\n" }
-    in_marker && /<\/div>/ { found = 1; in_marker = 0 }
-    END { if (!found || block !~ /<img[^>]*alt=""[^>]*aria-hidden="true"/ || block !~ /<span>[^<]*post_type.label[^<]*<\/span>/) exit 1 }
-  ' "$template" || fail "$template must keep a decorative icon and visible type label."
-}
+ruby - "$list" "$post_layout" <<'RUBY' || fail 'post-type renderers must use bilingual mappings and text-only unknown fallbacks.'
+list_path, post_path = ARGV
 
-marker_contract "$list" post
-marker_contract "$post_layout" page
+def fail(message)
+  warn message
+  exit 1
+end
+
+def assert_renderer(path, object)
+  template = File.read(path)
+  fail "#{path} does not use the central mapping." unless template.include?("site.data.post_types[#{object}.post_type]")
+  fail "#{path} must render a marker for unknown post types." unless template.include?("{% if #{object}.post_type %}")
+  fail "#{path} must branch between configured and unknown post types." unless template.include?('{% if post_type %}') && template.include?('{% else %}')
+
+  configured, fallback = template.split('{% if post_type %}', 2).last.split('{% else %}', 2)
+  fail "#{path} must use the language-aware configured label." unless configured.include?("post_type.label[#{object}.lang]")
+  fail "#{path} must keep configured icons decorative." unless configured.match?(%r{<img[^>]*alt=""[^>]*aria-hidden="true"})
+  fail "#{path} unknown post types must not render an image." if fallback.split('{% endif %}', 2).first.include?('<img')
+  expected_fallback = "#{object}.post_type | replace: '_', ' ' | replace: '-', ' ' | capitalize | escape"
+  fail "#{path} must render a readable text-only unknown post type fallback." unless fallback.include?(expected_fallback)
+end
+
+assert_renderer(list_path, 'post')
+assert_renderer(post_path, 'page')
+RUBY
+
 post_type_block=$(awk '/^\.post-item \.post-type \{/,/^\}/ { print }' "$styles")
 printf '%s\n' "$post_type_block" | grep -q 'position: absolute;' || fail 'post type marker must sit in the card corner.'
 printf '%s\n' "$post_type_block" | grep -q 'inset-block-start:' || fail 'post type marker must use logical vertical placement.'
@@ -101,25 +120,58 @@ printf '%s\n' "$detail_type_block" | grep -q 'display: inline-flex;' || fail 'po
 grep -q 'border-radius: 999px' "$styles" || fail 'tags must render as pills.'
 grep -q 'background-color: var(--color-surface)' "$styles" || fail 'tag pills must use the white surface.'
 grep -q 'post_type: "thoughts"' "$config" || fail 'collections must default to thoughts.'
+grep -Fq 'pinned_label="נעוץ"' "$root/he/index.html" || fail 'Hebrew pinned posts must use the exact נעוץ label.'
 awk '
   /<div class="post-content"/ { content = 1 }
   content && /<\/div>/ { content_done = 1; next }
   content_done && /<aside class="post-tags"/ { tags_after_content = 1 }
   END { exit(tags_after_content ? 0 : 1) }
 ' "$post_layout" || fail 'tags must remain below article content.'
+grep -Fq 'aria-label="{% if page.lang == "he" %}תגיות{% else %}Tags{% endif %}"' "$post_layout" || fail 'post tag accessibility label must be language-aware.'
 ! grep -Eq 'Tags:|[📌🏷️#]' "$post_layout" || fail 'tag rendering must not include a label or emoji.'
 
 if [ -d "$site_dir" ]; then
-  english_page="$site_dir/2013/11/23/tinder-privacy-issues/index.html"
-  hebrew_page="$site_dir/מעצמת-הסייבר-וקופות-החולים/index.html"
-  [ -f "$english_page" ] || fail 'generated English post page is missing.'
-  [ -f "$hebrew_page" ] || fail 'generated Hebrew post page is missing.'
-  grep -q 'assets/icons/post-types/featured.svg' "$english_page" || fail 'known English post type did not render.'
-  grep -q '<span>Featured</span>' "$english_page" || fail 'known English post type has no accessible text.'
-  grep -q 'class="post-tags"' "$english_page" || fail 'generated tags are missing.'
-  ! grep -q '>Tags:' "$english_page" || fail 'generated tags must not include a label or emoji.'
-  grep -q 'dir="rtl"' "$hebrew_page" || fail 'generated Hebrew post must remain RTL.'
-  grep -q 'assets/icons/post-types/security.svg' "$hebrew_page" || fail 'known Hebrew post type did not render.'
-  awk '/<header class="post-header">/ { header = 1 } header && /class="post-type"/ { marker = 1 } header && /<\/header>/ { exit(marker ? 0 : 1) } END { exit(marker ? 0 : 1) }' "$english_page" || fail 'generated post-detail marker must remain inside the header.'
-  grep -q 'class="post-item.*x-post-card"' "$site_dir/he/index.html" || fail 'generated Hebrew X card is missing.'
+  ruby - "$site_dir" <<'RUBY' || fail 'generated post-type labels, badges, or tag accessibility labels are incorrect.'
+site_dir = ARGV.fetch(0)
+pages = {
+  'index.html' => { marker: ['Featured', 'featured.svg'], badge: '📌 Pinned' },
+  'he/index.html' => { marker: ['אבטחה', 'security.svg'] },
+  '2013/11/23/tinder-privacy-issues/index.html' => { marker: ['Featured', 'featured.svg'], tags: 'Tags' },
+  'מעצמת-הסייבר-וקופות-החולים/index.html' => { marker: ['אבטחה', 'security.svg'], tags: 'תגיות' }
+}
+
+def fail(message)
+  warn message
+  exit 1
+end
+
+def blocks(html, class_name)
+  html.scan(%r{<div\b[^>]*\bclass="[^"]*\b#{Regexp.escape(class_name)}\b[^"]*"[^>]*>.*?</div>}m)
+end
+
+def text(html)
+  html.gsub(/<[^>]*>/, '').gsub(/\s+/, ' ').strip
+end
+
+pages.each do |relative_path, expected|
+  path = File.join(site_dir, relative_path)
+  fail "generated page is missing: #{relative_path}" unless File.file?(path)
+  html = File.read(path)
+  if expected[:marker]
+    label, icon = expected.fetch(:marker)
+    marker = blocks(html, 'post-type').find { |block| text(block) == label }
+    fail "#{relative_path}: missing exact scoped post-type label #{label.inspect}" unless marker
+    fail "#{relative_path}: configured post type #{label.inspect} is missing its icon" unless marker.include?("assets/icons/post-types/#{icon}")
+  end
+  if expected[:badge]
+    badge = blocks(html, 'post-badge').find { |block| text(block) == expected.fetch(:badge) }
+    fail "#{relative_path}: missing exact scoped post-badge label #{expected.fetch(:badge).inspect}" unless badge
+  end
+  if expected[:tags]
+    tags = html[%r{<aside\b[^>]*\bclass="post-tags"[^>]*>}m]
+    fail "#{relative_path}: tags are missing" unless tags
+    fail "#{relative_path}: tag accessibility label changed" unless tags.include?(%(aria-label="#{expected.fetch(:tags)}"))
+  end
+end
+RUBY
 fi

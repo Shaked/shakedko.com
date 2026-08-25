@@ -5,10 +5,14 @@ layout: default
   {% assign post_type = site.data.post_types[page.post_type] %}
 
   <header class="post-header">
-    {% if post_type %}
+    {% if page.post_type %}
       <div class="post-type">
-        <img src="{{ '/assets/icons/post-types/' | append: post_type.icon | relative_url }}" alt="" aria-hidden="true" width="18" height="18">
-        <span>{{ post_type.label | escape }}</span>
+        {% if post_type %}
+          <img src="{{ '/assets/icons/post-types/' | append: post_type.icon | relative_url }}" alt="" aria-hidden="true" width="18" height="18">
+          <span>{{ post_type.label[page.lang] | escape }}</span>
+        {% else %}
+          <span>{{ page.post_type | replace: '_', ' ' | replace: '-', ' ' | capitalize | escape }}</span>
+        {% endif %}
       </div>
     {% endif %}
     <h1 class="post-title" itemprop="name headline">{{ page.title | escape }}</h1>
@@ -27,7 +31,7 @@ layout: default
   </div>
 
   {% if page.tags %}
-  <aside class="post-tags" aria-label="Tags">
+  <aside class="post-tags" aria-label="{% if page.lang == "he" %}תגיות{% else %}Tags{% endif %}">
     {% for tag in page.tags %}
       <span class="tag">{{ tag }}</span>
     {% endfor %}

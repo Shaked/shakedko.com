@@ -70,6 +70,21 @@ mv "$fixture/page.tmp" "$fixture/work/_site/he/index.html"
 expect_failure 'generated Hebrew navigation destinations must remain exact'
 
 make_fixture
+sed 's/aria-label="מעבר לאנגלית"//' "$fixture/work/_includes/header.html" > "$fixture/header.tmp"
+mv "$fixture/header.tmp" "$fixture/work/_includes/header.html"
+expect_failure 'Hebrew language switch needs its explicit Hebrew accessible name'
+
+make_fixture
+sed 's/>English<\//>אנגלית<\//' "$fixture/work/_site/he/index.html" > "$fixture/page.tmp"
+mv "$fixture/page.tmp" "$fixture/work/_site/he/index.html"
+expect_failure 'generated Hebrew language switch must visibly read English'
+
+make_fixture
+sed 's#href="/" aria-label="מעבר לאנגלית"#href="/he/" aria-label="מעבר לאנגלית"#' "$fixture/work/_site/he/index.html" > "$fixture/page.tmp"
+mv "$fixture/page.tmp" "$fixture/work/_site/he/index.html"
+expect_failure 'generated Hebrew language switch must link to the English home page'
+
+make_fixture
 sed 's/inset-inline-start: auto;/right: 15px;/' "$fixture/work/assets/css/style.scss" > "$fixture/style.tmp"
 mv "$fixture/style.tmp" "$fixture/work/assets/css/style.scss"
 expect_failure 'mobile RTL navigation must clear Minima’s physical right inset'
