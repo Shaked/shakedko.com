@@ -1,0 +1,24 @@
+featured:
+  label: Featured
+  icon: featured.svg
+ai:
+  label: AI
+  icon: ai.svg
+security:
+  label: Security
+  icon: security.svg
+infrastructure:
+  label: Infrastructure
+  icon: infrastructure.svg
+development:
+  label: Development
+  icon: development.svg
+craft:
+  label: Craft
+  icon: craft.svg
+building:
+  label: Building
+  icon: building.svg
+thoughts:
+  label: Thoughts
+  icon: thoughts.svg
